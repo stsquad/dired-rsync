@@ -1,0 +1,1 @@
+Support for using rsync to copy files in dired buffers.
