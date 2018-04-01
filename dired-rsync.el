@@ -59,6 +59,24 @@
         (format "%s:%s" (nth 1 parts) (nth 2 parts)))
     file-or-path))
 
+;;
+;; Running rsync: We need to take care of a couple of things here. We
+;; need to ensure we run from the local host as you shouldn't expect
+;; the remote target to be as aware of the ssh shortcuts home as from
+;; the local system out (.ssh/config). We also want to track when it
+;; is finished so we can inform the user the copy is complete.
+;;
+
+(defun dired--rsync-sentinal(proc desc)
+  (message "%s: %s" proc desc))
+
+(defun dired--do-run-rsync (command source dest)
+  "Run rsync COMMAND in a unique buffer using SOURCE and DEST."
+  (let* ((buf (format "*rsync from %s to %s* @ %s"
+                      source dest (current-time-string)))
+         (proc (start-process-shell-command "*rsync*" buf command)))
+    (set-process-sentinel proc #'dired--rsync-sentinal)))
+
 (defun dired-rsync (dest)
   "Asynchronously copy files in dired to DEST using rsync.
 
@@ -69,14 +87,17 @@ ssh/scp tramp connections."
   (interactive 
    (list (read-file-name "rsync to:" (dired-dwim-target-directory))))
 
-  (let ((src-files (dired-get-marked-files nil current-prefix-arg)))
+  (let ((src-files (dired-get-marked-files nil current-prefix-arg))
+        (source))
 
     ;; check if the source is remote or destination is and munge
     ;; tramp style to rsync style appropriately.
     (if (dired-path-is-remote-tramp default-directory)
-        (setq src-files (-map 'dired-tramp-to-rsync src-files))
+        (setq src-files (-map 'dired-tramp-to-rsync src-files)
+              source (nth 2 (s-split " " default-directory)))
       (when (dired-path-is-remote-tramp dest)
-        (setq dest (dired-tramp-to-rsync dest))))
+        (setq dest (dired-tramp-to-rsync dest)
+              source "local")))
 
     ;; now build the rsync command
     (let ((cmd (s-join " "
@@ -84,9 +105,7 @@ ssh/scp tramp connections."
                         (list dired-rsync-command
                               dired-rsync-options
                               src-files dest)))))
-      (message "cmd: %s" cmd)
-      ;; execute the command asynchronously
-      (tat/execute-async cmd "rsync"))))
+      (dired--do-run-rsync cmd source dest))))
 
 (provide 'dired-rsync)
 ;;; dired-rsync.el ends here
