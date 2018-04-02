@@ -35,6 +35,8 @@
 ;; in a hopefully cleaner and more idiomatic way.
 
 (require 'dired-aux) ; for dired-dwim-target-directory
+(require 'dash)
+(require 's)
 
 ;;; Code:
 
