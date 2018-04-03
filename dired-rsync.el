@@ -58,7 +58,7 @@
   (if (dired-path-is-remote-tramp file-or-path)
       ;; tramp format is /method:remote:path
       (let ((parts (s-split ":" file-or-path)))
-        (format "%s:%s" (nth 1 parts) (nth 2 parts)))
+        (format "%s:\"%s\"" (nth 1 parts) (shell-quote-argument (nth 2 parts))))
     file-or-path))
 
 ;;
