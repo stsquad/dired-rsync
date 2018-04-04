@@ -96,7 +96,7 @@ ssh/scp tramp connections."
     ;; tramp style to rsync style appropriately.
     (if (dired-path-is-remote-tramp default-directory)
         (setq src-files (-map 'dired-tramp-to-rsync src-files)
-              source (nth 2 (s-split " " default-directory)))
+              source (nth 1 (s-split ":" default-directory)))
       (when (dired-path-is-remote-tramp dest)
         (setq dest (dired-tramp-to-rsync dest)
               source "local")))
