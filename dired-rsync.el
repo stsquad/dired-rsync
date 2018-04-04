@@ -51,6 +51,13 @@
 (defvar dired-rsync-jobs
   '()
   "List of current rsync processes.")
+
+(defvar dired-rsync-modeline-status
+  ""
+  "A string defining current dired-rsync status, useful for modelines.")
+
+;; Helpers
+
 (defun dired-path-is-remote-tramp (file-or-path)
   "Return true if FILE-OR-PATH is remote."
   (or (string-prefix-p "/scp:" file-or-path)
@@ -64,6 +71,18 @@
         (format "%s:\"%s\"" (nth 1 parts) (shell-quote-argument (nth 2 parts))))
     file-or-path))
 
+;; Update status with count/speed
+(defun dired-rsync-calculate-modeline ()
+  "Display number of jobs and calculate throughput."
+  (let ((jobs 0)
+        (total-bandwidth))
+    (mapc (lambda(job)
+            (when (process-live-p (car job))
+              (setq jobs (1+ jobs)))) dired-rsync-jobs)
+    (if (> jobs 0)
+        (format "R:%d %s" jobs (if (= jobs 1) "job" "jobs"))
+      (format ""))))
+
 ;;
 ;; Running rsync: We need to take care of a couple of things here. We
 ;; need to ensure we run from the local host as you shouldn't expect
@@ -73,19 +92,23 @@
 ;;
 
 (defun dired--rsync-sentinel(proc desc)
-  (let ((details (assoc proc dired-rsync-jobs)))
+  (let ((details (cdr (assoc proc dired-rsync-jobs))))
     (if (s-starts-with-p "finished" desc)
-        (message "finished: %s/%s" (current-buffer) details)
+        (with-current-buffer (plist-get details ':dired-buffer)
+          (dired-unmark-all-marks)
+          (message "finished: %s" details))
       (message "%s: %s" proc desc))
     (setq dired-rsync-jobs
-          (assq-delete-all proc dired-rsync-jobs))))
+          (assq-delete-all proc dired-rsync-jobs)))
+  (setq dired-rsync-modeline-status (dired-rsync-calculate-modeline)))
 
 (defun dired--do-run-rsync (command details)
   "Run rsync COMMAND in a unique buffer, saving DETAILS in job list."
   (let* ((buf (format "*rsync @ %s" (current-time-string)))
          (proc (start-process-shell-command "*rsync*" buf command)))
     (setq dired-rsync-jobs (add-to-list 'dired-rsync-jobs (cons proc details)))
-    (set-process-sentinel proc #'dired--rsync-sentinel)))
+    (set-process-sentinel proc #'dired--rsync-sentinel)
+    (setq dired-rsync-modeline-status (dired-rsync-calculate-modeline))))
 
 (defun dired-rsync (dest)
   "Asynchronously copy files in dired to DEST using rsync.
@@ -94,7 +117,7 @@ This function runs the copy asynchronously so Emacs won't block whilst
 the copy is running. It also handles both source and destinations on
 ssh/scp tramp connections."
   ;; Interactively grab dest if not called with
-  (interactive 
+  (interactive
    (list (read-file-name "rsync to:" (dired-dwim-target-directory))))
 
   (let ((src-files (dired-get-marked-files nil current-prefix-arg))
@@ -119,7 +142,7 @@ ssh/scp tramp connections."
                            (list :marked-files src-files
                                  :dest dest
                                  :source source
-                                 :dired-buffer (current-buffer))))))
+                                 :dired-buffer (buffer-name))))))
 
 (provide 'dired-rsync)
 ;;; dired-rsync.el ends here
