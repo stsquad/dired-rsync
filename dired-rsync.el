@@ -48,6 +48,9 @@
   "-avz --progress"
   "The default options for the rsync command.")
 
+(defvar dired-rsync-jobs
+  '()
+  "List of current rsync processes.")
 (defun dired-path-is-remote-tramp (file-or-path)
   "Return true if FILE-OR-PATH is remote."
   (or (string-prefix-p "/scp:" file-or-path)
@@ -69,15 +72,20 @@
 ;; is finished so we can inform the user the copy is complete.
 ;;
 
-(defun dired--rsync-sentinal(proc desc)
-  (message "%s: %s" proc desc))
+(defun dired--rsync-sentinel(proc desc)
+  (let ((details (assoc proc dired-rsync-jobs)))
+    (if (s-starts-with-p "finished" desc)
+        (message "finished: %s/%s" (current-buffer) details)
+      (message "%s: %s" proc desc))
+    (setq dired-rsync-jobs
+          (assq-delete-all proc dired-rsync-jobs))))
 
-(defun dired--do-run-rsync (command source dest)
-  "Run rsync COMMAND in a unique buffer using SOURCE and DEST."
-  (let* ((buf (format "*rsync from %s to %s* @ %s"
-                      source dest (current-time-string)))
+(defun dired--do-run-rsync (command details)
+  "Run rsync COMMAND in a unique buffer, saving DETAILS in job list."
+  (let* ((buf (format "*rsync @ %s" (current-time-string)))
          (proc (start-process-shell-command "*rsync*" buf command)))
-    (set-process-sentinel proc #'dired--rsync-sentinal)))
+    (setq dired-rsync-jobs (add-to-list 'dired-rsync-jobs (cons proc details)))
+    (set-process-sentinel proc #'dired--rsync-sentinel)))
 
 (defun dired-rsync (dest)
   "Asynchronously copy files in dired to DEST using rsync.
@@ -107,7 +115,11 @@ ssh/scp tramp connections."
                         (list dired-rsync-command
                               dired-rsync-options
                               src-files dest)))))
-      (dired--do-run-rsync cmd source dest))))
+      (dired--do-run-rsync cmd
+                           (list :marked-files src-files
+                                 :dest dest
+                                 :source source
+                                 :dired-buffer (current-buffer))))))
 
 (provide 'dired-rsync)
 ;;; dired-rsync.el ends here
