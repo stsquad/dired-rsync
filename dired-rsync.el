@@ -110,6 +110,7 @@
     (set-process-sentinel proc #'dired--rsync-sentinel)
     (setq dired-rsync-modeline-status (dired-rsync-calculate-modeline))))
 
+;;;###autoload
 (defun dired-rsync (dest)
   "Asynchronously copy files in dired to DEST using rsync.
 
