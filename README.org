@@ -1,1 +1,29 @@
-Support for using rsync to copy files in dired buffers.
+* Introduction
+
+This package adds a single command ~dired-rsync~ which allows the user
+to copy marked files in a ~dired~ buffer via rsync. This is useful,
+especially for large files, because the copy happens in the background
+and doesn't lock up Emacs. It is also more efficient than using tramps
+own encoding methods for moving data between systems.
+
+Configuration is simple as you only need to bind the ~dired-rsync~
+command to your prefered ~dired~ binding.
+
+#+name: configuring-dired-rsync
+#+begin_src emacs-lisp
+(use-package dired-rsync
+  :config
+  (bind-key "C-c C-r" 'dired-rsync dired-mode-map))
+#+end_src
+
+A variable called ~dired-rsync-modeline-status~ is provided for mode
+lines that will report the number of active rsync operations in
+progress.
+
+* Technical Notes
+
+While you can use rsync to copy files locally the main use case is
+copying files too/from a remote system. The rsync tool is always run
+locally as rsync needs working SSH authentication to work. If you can
+access a remote machine via tramp/ssh without having to enter a
+password (because ssh-agent is working) then rsync should work fine.
