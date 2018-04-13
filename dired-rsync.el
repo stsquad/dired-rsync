@@ -62,14 +62,14 @@
 
 ;; Helpers
 
-(defun dired-path-is-remote-tramp (file-or-path)
-  "Return true if FILE-OR-PATH is remote."
+(defun dired-rsync--is-remote-tramp-p (file-or-path)
+  "Return non-nil if FILE-OR-PATH is remote."
   (or (string-prefix-p "/scp:" file-or-path)
       (string-prefix-p "/ssh:" file-or-path)))
 
-(defun dired-tramp-to-rsync (file-or-path)
+(defun dired-rsync--convert-from-tramp (file-or-path)
   "Reformat a tramp FILE-OR-PATH to one usable for rsync."
-  (if (dired-path-is-remote-tramp file-or-path)
+  (if (dired-rsync--is-remote-tramp-p file-or-path)
       ;; tramp format is /method:remote:path
       (let ((parts (s-split ":" file-or-path)))
         (format "%s:\"%s\"" (nth 1 parts) (shell-quote-argument (nth 2 parts))))
@@ -95,7 +95,9 @@
 ;; is finished so we can inform the user the copy is complete.
 ;;
 
-(defun dired--rsync-sentinel(proc desc)
+(defun dired-rsync--sentinel(proc desc)
+  "Process sentinel for rsync processes. This gets called whenever the
+inferior process changes state."
   (let ((details (cdr (assoc proc dired-rsync-jobs))))
     (if (s-starts-with-p "finished" desc)
         (with-current-buffer (plist-get details ':dired-buffer)
@@ -106,12 +108,12 @@
           (assq-delete-all proc dired-rsync-jobs)))
   (setq dired-rsync-modeline-status (dired-rsync-calculate-modeline)))
 
-(defun dired--do-run-rsync (command details)
+(defun dired-rsync--do-run (command details)
   "Run rsync COMMAND in a unique buffer, saving DETAILS in job list."
   (let* ((buf (format "*rsync @ %s" (current-time-string)))
          (proc (start-process-shell-command "*rsync*" buf command)))
     (setq dired-rsync-jobs (add-to-list 'dired-rsync-jobs (cons proc details)))
-    (set-process-sentinel proc #'dired--rsync-sentinel)
+    (set-process-sentinel proc #'dired-rsync--sentinel)
     (setq dired-rsync-modeline-status (dired-rsync-calculate-modeline))))
 
 ;;;###autoload
@@ -130,11 +132,11 @@ ssh/scp tramp connections."
 
     ;; check if the source is remote or destination is and munge
     ;; tramp style to rsync style appropriately.
-    (if (dired-path-is-remote-tramp default-directory)
-        (setq src-files (-map 'dired-tramp-to-rsync src-files)
+    (if (dired-rsync--is-remote-tramp-p default-directory)
+        (setq src-files (-map 'dired-rsync--convert-from-tramp src-files)
               source (nth 1 (s-split ":" default-directory)))
-      (when (dired-path-is-remote-tramp dest)
-        (setq dest (dired-tramp-to-rsync dest)
+      (when (dired-rsync--is-remote-tramp-p dest)
+        (setq dest (dired-rsync--convert-from-tramp dest)
               source "local")))
 
     ;; now build the rsync command
@@ -143,7 +145,7 @@ ssh/scp tramp connections."
                         (list dired-rsync-command
                               dired-rsync-options
                               src-files dest)))))
-      (dired--do-run-rsync cmd
+      (dired-rsync--do-run cmd
                            (list :marked-files src-files
                                  :dest dest
                                  :source source
