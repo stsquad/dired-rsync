@@ -29,3 +29,12 @@ copying files too/from a remote system. The rsync tool is always run
 locally as rsync needs working SSH authentication to work. If you can
 access a remote machine via tramp/ssh without having to enter a
 password (because ssh-agent is working) then rsync should work fine.
+
+There have been several attempts at doing this but I found them
+wanting in usability. This attempts to clean up the ideas from:
+
+   https://truongtx.me/tmtxt-dired-async.html
+   https://oremacs.com/2016/02/24/dired-rsync/
+   https://vxlabs.com/2018/03/30/asynchronous-rsync-with-emacs-dired-and-tramp/
+
+in a hopefully cleaner and more idiomatic way.
