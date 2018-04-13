@@ -16,6 +16,8 @@ command to your prefered ~dired~ binding.
   (bind-key "C-c C-r" 'dired-rsync dired-mode-map))
 #+end_src
 
+* Customisation
+
 A variable called ~dired-rsync-modeline-status~ is provided for mode
 lines that will report the number of active rsync operations in
 progress.
