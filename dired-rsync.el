@@ -58,7 +58,7 @@
 
 (defvar dired-rsync-modeline-status
   ""
-  "A string defining current dired-rsync status, useful for modelines.")
+  "A string defining current `dired-rsync' status, useful for modelines.")
 
 ;; Helpers
 
@@ -96,8 +96,9 @@
 ;;
 
 (defun dired-rsync--sentinel(proc desc)
-  "Process sentinel for rsync processes. This gets called whenever the
-inferior process changes state."
+  "Process sentinel for rsync processes.
+This gets called whenever the inferior `PROC' changes state as
+  described by `DESC'."
   (let ((details (cdr (assoc proc dired-rsync-jobs))))
     (if (s-starts-with-p "finished" desc)
         (with-current-buffer (plist-get details ':dired-buffer)
