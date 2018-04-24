@@ -145,7 +145,8 @@ ssh/scp tramp connections."
                        (-flatten
                         (list dired-rsync-command
                               dired-rsync-options
-                              src-files dest)))))
+                              (mapcar #'shell-quote-argument src-files)
+			      (shell-quote-argument dest))))))
       (dired-rsync--do-run cmd
                            (list :marked-files src-files
                                  :dest dest
