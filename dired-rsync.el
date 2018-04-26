@@ -67,13 +67,13 @@
   (or (string-prefix-p "/scp:" file-or-path)
       (string-prefix-p "/ssh:" file-or-path)))
 
-(defun dired-rsync--convert-from-tramp (file-or-path)
+(defun dired-rsync--quote-and-maybe-convert-from-tramp (file-or-path)
   "Reformat a tramp FILE-OR-PATH to one usable for rsync."
   (if (dired-rsync--is-remote-tramp-p file-or-path)
       ;; tramp format is /method:remote:path
       (let ((parts (s-split ":" file-or-path)))
         (format "%s:\"%s\"" (nth 1 parts) (shell-quote-argument (nth 2 parts))))
-    file-or-path))
+    (shell-quote-argument file-or-path)))
 
 ;; Update status with count/speed
 (defun dired-rsync--update-modeline ()
@@ -134,29 +134,20 @@ ssh/scp tramp connections."
   (interactive
    (list (read-file-name "rsync to:" (dired-dwim-target-directory))))
 
-  (let ((src-files (dired-get-marked-files nil current-prefix-arg))
-        (source))
-
-    ;; check if the source is remote or destination is and munge
-    ;; tramp style to rsync style appropriately.
-    (if (dired-rsync--is-remote-tramp-p default-directory)
-        (setq src-files (-map 'dired-rsync--convert-from-tramp src-files)
-              source (nth 1 (s-split ":" default-directory)))
-      (when (dired-rsync--is-remote-tramp-p dest)
-        (setq dest (dired-rsync--convert-from-tramp dest)
-              source "local")))
+  (let ((src-files (-map
+                    'dired-rsync--quote-and-maybe-convert-from-tramp
+                    (dired-get-marked-files nil current-prefix-arg)))
+        (final-dest (dired-rsync--quote-and-maybe-convert-from-tramp dest)))
 
     ;; now build the rsync command
     (let ((cmd (s-join " "
                        (-flatten
                         (list dired-rsync-command
                               dired-rsync-options
-                              (mapcar #'shell-quote-argument src-files)
-			      (shell-quote-argument dest))))))
+                              src-files
+                              final-dest)))))
       (dired-rsync--do-run cmd
                            (list :marked-files src-files
-                                 :dest dest
-                                 :source source
                                  :dired-buffer (buffer-name))))))
 
 (provide 'dired-rsync)
