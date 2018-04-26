@@ -1,0 +1,6 @@
+v0.3 (PRERELEASE)
+   - clean-up handling of finished tasks
+   - rationalise the quoting of arguments
+   - automatically set mode-line-process with status
+v0.2
+   - first release to MELPA
