@@ -27,7 +27,7 @@ inferior process status.
 * Technical Notes
 
 While you can use rsync to copy files locally the main use case is
-copying files too/from a remote system. The rsync tool is always run
+copying files to/from a remote system. The rsync tool is always run
 locally as rsync needs working SSH authentication to work. If you can
 access a remote machine via tramp/ssh without having to enter a
 password (because ssh-agent is working) then rsync should work fine.
