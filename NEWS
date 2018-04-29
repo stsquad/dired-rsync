@@ -1,4 +1,4 @@
-v0.3 (PRERELEASE)
+v0.3
    - clean-up handling of finished tasks
    - rationalise the quoting of arguments
    - automatically set mode-line-process with status
