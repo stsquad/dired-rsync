@@ -2,5 +2,6 @@ v0.3
    - clean-up handling of finished tasks
    - rationalise the quoting of arguments
    - automatically set mode-line-process with status
+   - added LICENSE file to repo
 v0.2
    - first release to MELPA
