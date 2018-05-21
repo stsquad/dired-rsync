@@ -1,3 +1,6 @@
+v0.4 (pre-release)
+   - convert dired-rsync-[command|options] to defcustom
+   
 v0.3
    - clean-up handling of finished tasks
    - rationalise the quoting of arguments

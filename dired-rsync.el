@@ -44,14 +44,19 @@
 
 ;;; Code:
 
-(defvar dired-rsync-command
-  "rsync"
-  "The rsync binary that we are going to use.")
+;; Customisation options
 
-(defvar dired-rsync-options
-  "-avz --progress"
-  "The default options for the rsync command.")
+(defcustom dired-rsync-command "rsync"
+  "The rsync binary that we are going to use."
+  :type 'string
+  :group 'dired-rsync)
 
+(defcustom dired-rsync-options "-avz --progress"
+  "The default options for the rsync command."
+  :type 'string
+  :group 'dired-rsync)
+
+;; Internal variables
 (defvar dired-rsync-jobs
   '()
   "List of current rsync processes.")
