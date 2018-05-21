@@ -56,6 +56,10 @@
   :type 'string
   :group 'dired-rsync)
 
+(defcustom dired-rsync-unmark-on-completion 't
+  "Control if dired-rsync should unmark when complete."
+  :group 'dired-rsync)
+
 ;; Internal variables
 (defvar dired-rsync-job-count 0
   "Count of running rsync jobs.")
@@ -104,8 +108,9 @@ This gets called whenever the inferior `PROC' changes state as
     ;; clean-up finished tasks
     (let ((proc-buf (process-buffer proc))
           (dired-buf (plist-get details ':dired-buffer)))
-      (with-current-buffer dired-buf
-        (dired-unmark-all-marks))
+      (when dired-rsync-unmark-on-completion
+        (with-current-buffer dired-buf
+          (dired-unmark-all-marks)))
       (kill-buffer proc-buf)))
   ;; clean-up data left from dead/finished processes
   (when (not (process-live-p proc))
