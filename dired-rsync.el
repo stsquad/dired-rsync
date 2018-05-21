@@ -1,4 +1,4 @@
-;;; dired-rsync.el --- Allow rsync from dired buffers
+;;; dired-rsync.el --- Allow rsync from dired buffers -*- lexical-binding: t -*-
 ;;
 ;; Copyright (C) 2018 Alex Bennée
 ;;
@@ -57,9 +57,8 @@
   :group 'dired-rsync)
 
 ;; Internal variables
-(defvar dired-rsync-jobs
-  '()
-  "List of current rsync processes.")
+(defvar dired-rsync-job-count 0
+  "Count of running rsync jobs.")
 
 (defvar dired-rsync-modeline-status
   ""
@@ -83,16 +82,11 @@
 ;; Update status with count/speed
 (defun dired-rsync--update-modeline ()
   "Update the number of current jobs."
-  (let ((jobs 0)
-        (total-bandwidth))
-    (mapc (lambda(job)
-            (when (process-live-p (car job))
-              (setq jobs (1+ jobs)))) dired-rsync-jobs)
-    (setq mode-line-process
+  (setq mode-line-process
           (setq dired-rsync-modeline-status
-                (if (> jobs 0)
-                    (format " R:%d " jobs)
-                  nil)))))
+                (if (> dired-rsync-job-count 0)
+                    (format " R:%d " dired-rsync-job-count)
+                  nil))))
 
 ;;
 ;; Running rsync: We need to take care of a couple of things here. We
@@ -102,30 +96,32 @@
 ;; is finished so we can inform the user the copy is complete.
 ;;
 
-(defun dired-rsync--sentinel(proc desc)
+(defun dired-rsync--sentinel(proc desc details)
   "Process sentinel for rsync processes.
 This gets called whenever the inferior `PROC' changes state as
   described by `DESC'."
-  (let ((details (cdr (assoc proc dired-rsync-jobs))))
-    (when (s-starts-with-p "finished" desc)
-      ;; clean-up finished tasks
-        (let ((proc-buf (process-buffer proc))
-              (dired-buf (plist-get details ':dired-buffer)))
-          (with-current-buffer dired-buf
-            (dired-unmark-all-marks))
-          (kill-buffer proc-buf)))
-    ;; clean-up data left from dead/finished processes
-    (when (not (process-live-p proc))
-      (setq dired-rsync-jobs
-            (assq-delete-all proc dired-rsync-jobs))))
+  (when (s-starts-with-p "finished" desc)
+    ;; clean-up finished tasks
+    (let ((proc-buf (process-buffer proc))
+          (dired-buf (plist-get details ':dired-buffer)))
+      (with-current-buffer dired-buf
+        (dired-unmark-all-marks))
+      (kill-buffer proc-buf)))
+  ;; clean-up data left from dead/finished processes
+  (when (not (process-live-p proc))
+    (setq dired-rsync-job-count (1- dired-rsync-job-count)))
   (dired-rsync--update-modeline))
 
 (defun dired-rsync--do-run (command details)
-  "Run rsync COMMAND in a unique buffer, saving DETAILS in job list."
+  "Run rsync COMMAND in a unique buffer, passing DETAILS to sentinel."
   (let* ((buf (format "*rsync @ %s" (current-time-string)))
          (proc (start-process-shell-command "*rsync*" buf command)))
-    (setq dired-rsync-jobs (add-to-list 'dired-rsync-jobs (cons proc details)))
-    (set-process-sentinel proc #'dired-rsync--sentinel)
+    (lexical-let ((job-details details))
+      (set-process-sentinel
+       proc
+       #'(lambda (proc desc)
+           (dired-rsync--sentinel proc desc job-details))))
+    (setq dired-rsync-job-count (1+ dired-rsync-job-count))
     (dired-rsync--update-modeline)))
 
 ;;;###autoload
