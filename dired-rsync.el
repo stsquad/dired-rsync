@@ -71,14 +71,9 @@
 
 ;; Helpers
 
-(defun dired-rsync--is-remote-tramp-p (file-or-path)
-  "Return non-nil if FILE-OR-PATH is remote."
-  (or (string-prefix-p "/scp:" file-or-path)
-      (string-prefix-p "/ssh:" file-or-path)))
-
 (defun dired-rsync--quote-and-maybe-convert-from-tramp (file-or-path)
   "Reformat a tramp FILE-OR-PATH to one usable for rsync."
-  (if (dired-rsync--is-remote-tramp-p file-or-path)
+  (if (tramp-tramp-file-p file-or-path)
       ;; tramp format is /method:remote:path
       (let ((parts (s-split ":" file-or-path)))
         (format "%s:\"%s\"" (nth 1 parts) (shell-quote-argument (nth 2 parts))))
