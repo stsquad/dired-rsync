@@ -56,8 +56,9 @@
   :type 'string
   :group 'dired-rsync)
 
-(defcustom dired-rsync-unmark-on-completion 't
+(defcustom dired-rsync-unmark-on-completion t
   "Control if dired-rsync should unmark when complete."
+  :type 'boolean
   :group 'dired-rsync)
 
 ;; Internal variables
