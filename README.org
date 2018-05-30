@@ -1,3 +1,8 @@
+#+Title: dired-rsync -- asynchronous rsync from dired
+
+[[https://stable.melpa.org/#/dired-rsync][file:https://stable.melpa.org/packages/dired-rsync-badge.svg]]
+[[https://melpa.org/#/dired-rsync][file:https://melpa.org/packages/dired-rsync-badge.svg]]
+
 * Introduction
 
 This package adds a single command ~dired-rsync~ which allows the user
@@ -49,8 +54,8 @@ could be improved.
 There have been several attempts at doing this but I found them
 wanting in usability. This attempts to clean up the ideas from:
 
-   https://truongtx.me/tmtxt-dired-async.html
-   https://oremacs.com/2016/02/24/dired-rsync/
-   https://vxlabs.com/2018/03/30/asynchronous-rsync-with-emacs-dired-and-tramp/
+ - https://truongtx.me/tmtxt-dired-async.html
+ - https://oremacs.com/2016/02/24/dired-rsync/
+ - https://vxlabs.com/2018/03/30/asynchronous-rsync-with-emacs-dired-and-tramp/
 
 in a hopefully cleaner and more idiomatic way.
