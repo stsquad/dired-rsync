@@ -1,6 +1,7 @@
 v0.4 (pre-release)
    - convert dired-rsync-[command|options] to defcustom
-   
+   - added dired-rsync-unmark-on-completion option
+   - re-factored to keep temp data in lexically let variable
 v0.3
    - clean-up handling of finished tasks
    - rationalise the quoting of arguments
