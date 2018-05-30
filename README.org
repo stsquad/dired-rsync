@@ -22,7 +22,15 @@ A variable called ~dired-rsync-modeline-status~ is provided for mode
 lines that will report the number of active rsync operations in
 progress. However by default that value is also set in
 ~mode-line-process~ which is a common place for things to report
-inferior process status.
+inferior process status. The variable ~dired-rsync-job-count~ contains
+the number of currently active ~dired-rsync~ jobs currently running.
+
+For those that don't like the way ~dired-rsync~ unmarks transferred
+files when it completes please see ~dired-rsync-unmark-on-completion~.
+
+The options ~dired-rsync-command~ and ~dired-rsync-options~ are there
+to modify the call to rsync but a user is unlikely to need to tweak
+these.
 
 * Technical Notes
 
@@ -31,6 +39,12 @@ copying files to/from a remote system. The rsync tool is always run
 locally as rsync needs working SSH authentication to work. If you can
 access a remote machine via tramp/ssh without having to enter a
 password (because ssh-agent is working) then rsync should work fine.
+
+The test used by ~dired-rsync~ is ~tramp-tramp-file-p~ which will mean
+any tramp path will attempt to be converted to an rsync path with
+optional ssh transport. Obviously if your remote target doesn't also
+have ssh running and remote rsync binary this will fail. The reporting
+could be improved.
 
 There have been several attempts at doing this but I found them
 wanting in usability. This attempts to clean up the ideas from:
