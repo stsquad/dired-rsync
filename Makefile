@@ -1,9 +1,9 @@
 # First, define the environment variables that drive EMake.
 EENVS  = PACKAGE_FILE="dired-rsync.el"
 EENVS += PACKAGE_LISP="dired-rsync.el"
-EENVS += PACKAGE_ARCHIVES="gnu melpa"
-EENVS += PACKAGE_TEST_DEPS="dash package-lint"
-EENVS += PACKAGE_TEST_ARCHIVES="melpa"
+EENVS += PACKAGE_ARCHIVES="gnu melpa-stable"
+EENVS += PACKAGE_TEST_DEPS="s dash package-lint"
+EENVS += PACKAGE_TEST_ARCHIVES="melpa-stable"
 # Then, make it easy to invoke Emacs with EMake loaded.
 EMAKE := $(EENVS) emacs -batch -l emake.el --eval "(emake (pop argv))"
 
