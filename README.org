@@ -2,6 +2,7 @@
 
 [[https://stable.melpa.org/#/dired-rsync][file:https://stable.melpa.org/packages/dired-rsync-badge.svg]]
 [[https://melpa.org/#/dired-rsync][file:https://melpa.org/packages/dired-rsync-badge.svg]]
+[[https:/travis-ci.org/stsquad/dired-rsync][file:https:/travis-ci.org/stsquad/dired-rsync.svg?branch=master]]
 
 * Introduction
 
