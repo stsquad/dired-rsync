@@ -26,12 +26,12 @@
 ;;; Commentary:
 ;;
 ;; dired-rsync is a command that can be run from a dired buffer to
-;; copy files using rsync rather than tramps in-built mechanism. This
-;; is especially useful for copying large files to/from remote
+;; copy files using rsync rather than tramps in-built mechanism.
+;; This is especially useful for copying large files to/from remote
 ;; locations without locking up tramp.
 ;;
 ;; To use simply open a dired buffer, mark some files and invoke
-;; dired-rsync. After being prompted for a location to copy to an
+;; dired-rsync.  After being prompted for a location to copy to an
 ;; inferior rsync process will be spawned.
 ;;
 ;; Wherever the files are selected from the rsync will always run from
@@ -56,8 +56,9 @@
   :type 'string
   :group 'dired-rsync)
 
-(defcustom dired-rsync-unmark-on-completion 't
+(defcustom dired-rsync-unmark-on-completion t
   "Control if dired-rsync should unmark when complete."
+  :type 'boolean
   :group 'dired-rsync)
 
 ;; Internal variables
@@ -70,14 +71,9 @@
 
 ;; Helpers
 
-(defun dired-rsync--is-remote-tramp-p (file-or-path)
-  "Return non-nil if FILE-OR-PATH is remote."
-  (or (string-prefix-p "/scp:" file-or-path)
-      (string-prefix-p "/ssh:" file-or-path)))
-
 (defun dired-rsync--quote-and-maybe-convert-from-tramp (file-or-path)
   "Reformat a tramp FILE-OR-PATH to one usable for rsync."
-  (if (dired-rsync--is-remote-tramp-p file-or-path)
+  (if (tramp-tramp-file-p file-or-path)
       ;; tramp format is /method:remote:path
       (let ((parts (s-split ":" file-or-path)))
         (format "%s:\"%s\"" (nth 1 parts) (shell-quote-argument (nth 2 parts))))
