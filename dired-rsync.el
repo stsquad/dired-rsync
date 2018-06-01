@@ -38,6 +38,8 @@
 ;; your local machine.
 ;;
 
+(eval-when-compile (require 'cl)) ; for lexical-let
+(require 'tramp) ; for tramp-tramp-file-p
 (require 'dired-aux) ; for dired-dwim-target-directory
 (require 'dash)
 (require 's)
