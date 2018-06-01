@@ -1,7 +1,10 @@
-v0.4 (pre-release)
+v0.4
    - convert dired-rsync-[command|options] to defcustom
    - added dired-rsync-unmark-on-completion option
    - re-factored to keep temp data in lexically let variable
+   - and tramp path (as defined by tramp-tramp-file-p) will attempt to be converted to remote rsync
+   - updates to README.org
+   - A simple Travis base CI has been enabled
 v0.3
    - clean-up handling of finished tasks
    - rationalise the quoting of arguments
