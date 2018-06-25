@@ -43,6 +43,7 @@
 (require 'dired-aux) ; for dired-dwim-target-directory
 (require 'dash)
 (require 's)
+(require 'rx)
 
 ;;; Code:
 
@@ -71,6 +72,14 @@
   ""
   "A string defining current `dired-rsync' status, useful for modelines.")
 
+(defvar dired-rsync-passphrase-stall-regex
+  (rx "Enter passphrase for key")
+  "A regex to detect passphrase prompts.")
+
+(defvar dired-rsync-percent-complete-regex
+  (rx (** 1 3 digit) "%")
+  "A regex to extract the % complete from a file.")
+
 ;; Helpers
 
 (defun dired-rsync--quote-and-maybe-convert-from-tramp (file-or-path)
@@ -82,13 +91,26 @@
     (shell-quote-argument file-or-path)))
 
 ;; Update status with count/speed
-(defun dired-rsync--update-modeline ()
-  "Update the number of current jobs."
+(defun dired-rsync--update-modeline (&optional err ind)
+  "Update the modeline, optionally with `ERR' or `IND'.
+
+`ERR' is set this indicates a problem, otherwise `IND' is an
+alternative indication (such as a percentage completion). If
+neither is set we simply display the current number of jobs."
   (setq mode-line-process
-          (setq dired-rsync-modeline-status
-                (if (> dired-rsync-job-count 0)
-                    (format " R:%d " dired-rsync-job-count)
-                  nil))))
+        (setq dired-rsync-modeline-status
+              (cond
+               ;; error has occurred
+               (err (propertize
+                     (format " R:%d %s!!" dired-rsync-job-count err)
+                     'font-lock-face '(:foreground "red")))
+               ;; we still have jobs but no error
+               ((> dired-rsync-job-count 0)
+                (if ind
+                    (format " R:%s" ind)
+                  (format " R:%d" dired-rsync-job-count)))
+               ;; nothing going on
+               (t nil)))))
 
 ;;
 ;; Running rsync: We need to take care of a couple of things here. We
@@ -115,6 +137,42 @@ This gets called whenever the inferior `PROC' changes state as
     (setq dired-rsync-job-count (1- dired-rsync-job-count)))
   (dired-rsync--update-modeline))
 
+
+(defun dired-rsync--filter (proc string details)
+  "`PROC' rsync process filter, insert `STRING' into buffer with `DETAILS'.
+
+This gets called with string whenever there is new data to
+display in the process buffer. We scan the string to extract useful
+information and can use `DETAILS' to find and update the original
+dired-buffer modeline."
+
+  ;; scan the new string
+  (let ((err nil) (indicator nil))
+    ;; Grab % complete string
+    (when (string-match dired-rsync-percent-complete-regex string)
+      (setq indicator (match-string 0 string)))
+    ;; check for prompt
+    (when (string-match dired-rsync-passphrase-stall-regex string)
+      (setq err "PROMPT"))
+    ;; update if anything to report
+    (when (or err indicator)
+      (with-current-buffer (plist-get details ':dired-buffer)
+        (dired-rsync--update-modeline err indicator))))
+
+  ;; update the process buffer (we could just drop?)
+  (let ((old-process-mark (process-mark proc)))
+    ;; do the normal buffer text insertion
+    (when (buffer-live-p (process-buffer proc))
+      (with-current-buffer (process-buffer proc)
+        (let ((moving (= (point) old-process-mark)))
+          (save-excursion
+            ;; Insert the text, advancing the process marker.
+            (goto-char old-process-mark)
+            (insert string)
+            (set-marker (process-mark proc) (point)))
+          (if moving (goto-char (process-mark proc))))))))
+
+
 (defun dired-rsync--do-run (command details)
   "Run rsync COMMAND in a unique buffer, passing DETAILS to sentinel."
   (let* ((buf (format "*rsync @ %s" (current-time-string)))
@@ -123,7 +181,11 @@ This gets called whenever the inferior `PROC' changes state as
       (set-process-sentinel
        proc
        #'(lambda (proc desc)
-           (dired-rsync--sentinel proc desc job-details))))
+           (dired-rsync--sentinel proc desc job-details)))
+      (set-process-filter
+       proc
+       #'(lambda (proc string)
+           (dired-rsync--filter proc string job-details))))
     (setq dired-rsync-job-count (1+ dired-rsync-job-count))
     (dired-rsync--update-modeline)))
 
