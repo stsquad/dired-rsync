@@ -97,6 +97,7 @@
 `ERR' is set this indicates a problem, otherwise `IND' is an
 alternative indication (such as a percentage completion). If
 neither is set we simply display the current number of jobs."
+  (force-mode-line-update)
   (setq mode-line-process
         (setq dired-rsync-modeline-status
               (cond
