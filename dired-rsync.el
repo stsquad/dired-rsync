@@ -95,7 +95,7 @@
   "Update the modeline, optionally with `ERR' or `IND'.
 
 `ERR' is set this indicates a problem, otherwise `IND' is an
-alternative indication (such as a percentage completion). If
+alternative indication (such as a percentage completion).  If
 neither is set we simply display the current number of jobs."
   (force-mode-line-update)
   (setq mode-line-process
@@ -143,7 +143,7 @@ This gets called whenever the inferior `PROC' changes state as
   "`PROC' rsync process filter, insert `STRING' into buffer with `DETAILS'.
 
 This gets called with string whenever there is new data to
-display in the process buffer. We scan the string to extract useful
+display in the process buffer.  We scan the string to extract useful
 information and can use `DETAILS' to find and update the original
 dired-buffer modeline."
 
@@ -195,7 +195,7 @@ dired-buffer modeline."
   "Asynchronously copy files in dired to DEST using rsync.
 
 This function runs the copy asynchronously so Emacs won't block whilst
-the copy is running. It also handles both source and destinations on
+the copy is running.  It also handles both source and destinations on
 ssh/scp tramp connections."
   ;; Interactively grab dest if not called with
   (interactive
