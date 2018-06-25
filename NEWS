@@ -1,3 +1,5 @@
+v0.5 (prerelease)
+   - smarter modeline status
 v0.4
    - convert dired-rsync-[command|options] to defcustom
    - added dired-rsync-unmark-on-completion option
