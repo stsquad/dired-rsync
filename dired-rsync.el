@@ -54,7 +54,7 @@
   :type 'string
   :group 'dired-rsync)
 
-(defcustom dired-rsync-options "-avz --progress"
+(defcustom dired-rsync-options "-az --info=progress2"
   "The default options for the rsync command."
   :type 'string
   :group 'dired-rsync)
