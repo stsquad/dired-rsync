@@ -90,6 +90,37 @@
         (format "%s:\"%s\"" (nth 1 parts) (shell-quote-argument (nth 2 parts))))
     (shell-quote-argument file-or-path)))
 
+(defun dired-rsync--extract-host-from-tramp (file-or-path &optional split-user)
+  "Extract the host part of a tramp path.
+
+We assume hosts don't need quoting."
+  (let ((parts (s-split ":" file-or-path)))
+    (let ((host (nth 1 parts)))
+      (if (and split-user (s-contains? "@" host))
+          (nth 1 (s-split "@" host))
+        host))))
+
+;; (dired-rsync--extract-host-from-tramp "/ssh:host:/path/to/file.txt")
+;; (dired-rsync--extract-host-from-tramp "/ssh:user@host:/path/to/file.txt")
+;; (dired-rsync--extract-host-from-tramp "/ssh:user@host:/path/to/file.txt" t)
+
+(defun dired-rsync--extract-user-from-tramp (file-or-path)
+  "Extract the username part of a tramp path."
+  (when (s-contains? "@" file-or-path)
+    (nth 1 (s-split ":" (nth 0 (s-split "@" file-or-path))))))
+
+; (dired-rsync--extract-user-from-tramp "/ssh:user@host:/path/to/file.txt")
+
+(defun dired-rsync--extract-paths-from-tramp (files)
+  "Extract the path part of a tramp path and quote it."
+  (--map
+   (let ((parts (s-split ":" it)))
+     (shell-quote-argument (nth 2 parts)))
+   files))
+
+; (dired-rsync--extract-paths-from-tramp '("/ssh:host:/path/to/file.txt" "/ssh:host:/path/to/file2.txt"))
+; (dired-rsync--extract-paths-from-tramp '("/ssh:host:/path/to/file.txt"))
+
 ;; Update status with count/speed
 (defun dired-rsync--update-modeline (&optional err ind)
   "Update the modeline, optionally with `ERR' or `IND'.
@@ -205,6 +236,31 @@ Fortunately both forms are broadly the same."
                    dired-rsync-options
                    src-files
                    final-dest)))))
+
+;; ref: https://unix.stackexchange.com/questions/183504/how-to-rsync-files-between-two-remotes
+(defun dired--rsync-remote-to-remote-cmd (shost sfiles dhost duser dpath)
+  "Construct and trigger an rsync run for a remote to remote copy.
+
+rsync doesn't support this mode of operation but we can fake it by
+providing a port forward from the source host which we pass onto the
+destination. This requires ssh'ing to the source and running the rsync
+there."
+  (s-join " " (-flatten
+               (list "ssh" "-A"
+                     "-R" (format "localhost:50000:%s:22" dhost)
+                     shost
+                     (format
+                      "'%s %s -e \"%s\" %s %s@localhost:%s'"
+                      dired-rsync-command
+                      dired-rsync-options
+                      "ssh -p 50000 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
+                      (s-join " " sfiles)
+                      duser
+                      dpath)))))
+
+; (dired--rsync-remote-to-remote-cmd "seed" '("a" "b" "c") "host" "user" "/video")
+
+
 ;;;###autoload
 (defun dired-rsync (dest)
   "Asynchronously copy files in dired to `DEST' using rsync.
@@ -217,13 +273,23 @@ the copy is running.  It also handles both source and destinations on
 ssh/scp tramp connections."
   ;; Interactively grab dest if not called with
   (interactive
-   (list (read-file-name "rsync to:" (dired-dwim-target-directory))))
+   (list (read-file-name "rsync to:" (dired-dwim-target-directory)
+                         nil nil nil 'file-directory-p)))
 
   (setq dest (expand-file-name dest))
 
   (let ((sfiles (dired-get-marked-files nil current-prefix-arg))
         (cmd))
     (setq cmd
+          (if (and (tramp-tramp-file-p dest)
+                   (tramp-tramp-file-p (-first-item sfiles)))
+              (let ((shost (dired-rsync--extract-host-from-tramp (-first-item sfiles)))
+                    (src-files (dired-rsync--extract-paths-from-tramp sfiles))
+                    (dhost (dired-rsync--extract-host-from-tramp dest t))
+                    (duser (dired-rsync--extract-user-from-tramp dest))
+                    (dpath (-first-item (dired-rsync--extract-paths-from-tramp (list dest)))))
+                (dired--rsync-remote-to-remote-cmd shost src-files
+                                                   dhost duser dpath))
             (dired--rsync-remote-to/from-local-cmd sfiles dest)))
     (dired-rsync--do-run cmd
                          (list :marked-files sfiles
