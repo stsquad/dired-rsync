@@ -1,5 +1,7 @@
 v0.5 (prerelease)
-   - smarter modeline status
+   - minor CI clean-ups
+   - smarter modeline status (show R:n%)
+   - make dired-rsync process dest with expand-file-name
 v0.4
    - convert dired-rsync-[command|options] to defcustom
    - added dired-rsync-unmark-on-completion option
