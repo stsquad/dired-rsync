@@ -192,6 +192,19 @@ dired-buffer modeline."
     (setq dired-rsync-job-count (1+ dired-rsync-job-count))
     (dired-rsync--update-modeline)))
 
+(defun dired--rsync-remote-to/from-local-cmd (sfiles dest)
+  "Construct a rsync command for remote to local or local to remote copy.
+
+Fortunately both forms are broadly the same."
+  (let ((src-files
+         (-map 'dired-rsync--quote-and-maybe-convert-from-tramp sfiles))
+        (final-dest (dired-rsync--quote-and-maybe-convert-from-tramp dest)))
+    (s-join " "
+            (-flatten
+             (list dired-rsync-command
+                   dired-rsync-options
+                   src-files
+                   final-dest)))))
 ;;;###autoload
 (defun dired-rsync (dest)
   "Asynchronously copy files in dired to `DEST' using rsync.
@@ -208,21 +221,13 @@ ssh/scp tramp connections."
 
   (setq dest (expand-file-name dest))
 
-  (let ((src-files (-map
-                    'dired-rsync--quote-and-maybe-convert-from-tramp
-                    (dired-get-marked-files nil current-prefix-arg)))
-        (final-dest (dired-rsync--quote-and-maybe-convert-from-tramp dest)))
-
-    ;; now build the rsync command
-    (let ((cmd (s-join " "
-                       (-flatten
-                        (list dired-rsync-command
-                              dired-rsync-options
-                              src-files
-                              final-dest)))))
-      (dired-rsync--do-run cmd
-                           (list :marked-files src-files
-                                 :dired-buffer (buffer-name))))))
+  (let ((sfiles (dired-get-marked-files nil current-prefix-arg))
+        (cmd))
+    (setq cmd
+            (dired--rsync-remote-to/from-local-cmd sfiles dest)))
+    (dired-rsync--do-run cmd
+                         (list :marked-files sfiles
+                               :dired-buffer (buffer-name)))))
 
 (provide 'dired-rsync)
 ;;; dired-rsync.el ends here
