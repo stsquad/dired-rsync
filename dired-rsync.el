@@ -156,7 +156,7 @@ dired-buffer modeline."
       (setq indicator (match-string 0 string)))
     ;; check for prompt
     (when (string-match dired-rsync-passphrase-stall-regex string)
-      (setq err "PROMPT"))
+      (process-send-string proc (concat (read-from-minibuffer string) "\n")))
     ;; update if anything to report
     (when (or err indicator)
       (with-current-buffer (plist-get details ':dired-buffer)
