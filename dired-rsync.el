@@ -239,7 +239,7 @@ Fortunately both forms are broadly the same."
                    final-dest)))))
 
 ;; ref: https://unix.stackexchange.com/questions/183504/how-to-rsync-files-between-two-remotes
-(defun dired-rsync--remote-to-remote-cmd (shost sfiles dhost duser dpath)
+(defun dired-rsync--remote-to-remote-cmd (shost sfiles duser dhost dpath)
   "Construct and trigger an rsync run for remote copy.
 The source SHOST and SFILES to remote DUSER @ DHOST to DPATH.
 
@@ -260,7 +260,7 @@ there."
                       duser
                       dpath)))))
 
-; (dired-rsync--remote-to-remote-cmd "seed" '("a" "b" "c") "host" "user" "/video")
+; (dired-rsync--remote-to-remote-cmd "seed" '("a" "b" "c") "user" "host" "/video")
 
 
 ;;;###autoload
@@ -291,7 +291,7 @@ ssh/scp tramp connections."
                     (duser (dired-rsync--extract-user-from-tramp dest))
                     (dpath (-first-item (dired-rsync--extract-paths-from-tramp (list dest)))))
                 (dired-rsync--remote-to-remote-cmd shost src-files
-                                                   dhost duser dpath))
+                                                   duser dhost dpath))
             (dired-rsync--remote-to-from-local-cmd sfiles dest)))
     (dired-rsync--do-run cmd
                          (list :marked-files sfiles
