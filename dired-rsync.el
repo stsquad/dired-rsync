@@ -157,7 +157,7 @@ neither is set we simply display the current number of jobs."
 This gets called whenever the inferior `PROC' changes state as
   described by `DESC'.  `DETAILS' provides access to additional
   information such as the locate of the dired-buffer."
-  (message "sentinal: %s" desc)
+  (message "sentinal: %s/%s" desc (process-live-p proc))
   (when (s-starts-with-p "finished" desc)
     ;; clean-up finished tasks
     (let ((proc-buf (process-buffer proc))
