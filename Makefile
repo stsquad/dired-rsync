@@ -17,7 +17,7 @@ ifeq ($(TRAVIS_OS_NAME),osx)
 export EMACS_CONFIGURE_ARGS := --with-ns --with-modules
 endif
 
-setup: emacs
+setup: emacs emake.mk
 
 travis-script:
 # test compilation
