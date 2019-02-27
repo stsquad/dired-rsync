@@ -2,6 +2,7 @@ v0.5 (prerelease)
    - minor CI clean-ups
    - smarter modeline status (show R:n%)
    - make dired-rsync process dest with expand-file-name
+   - we now support remote to remote with an ugly port forward hack
 v0.4
    - convert dired-rsync-[command|options] to defcustom
    - added dired-rsync-unmark-on-completion option

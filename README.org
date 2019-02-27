@@ -46,6 +46,10 @@ locally as rsync needs working SSH authentication to work. If you can
 access a remote machine via tramp/ssh without having to enter a
 password (because ssh-agent is working) then rsync should work fine.
 
+You can also do a remote-to-remote copy although this does involve
+setting up a port forward so the first remote can access the second
+remote. It's ugly but it works.
+
 The test used by ~dired-rsync~ is ~tramp-tramp-file-p~ which will mean
 any tramp path will attempt to be converted to an rsync path with
 optional ssh transport. Obviously if your remote target doesn't also
