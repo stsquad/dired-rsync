@@ -10,7 +10,7 @@ matrix:
   - env: EMACS_VERSION=snapshot
 env:
   global:
-    - EMAKE_SHA1=7c2fdc5b5d911c219710ac7560db182f39a5d605
+    - EMAKE_SHA1=2f22d5b272443246e4b4c4b3a23533be78655f2e
     - EMACS_DIR=$HOME/emacs
     - EMACS=$HOME/emacs/src/emacs
   matrix:
