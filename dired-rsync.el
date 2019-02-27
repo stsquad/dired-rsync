@@ -38,7 +38,7 @@
 ;; your local machine.
 ;;
 
-(eval-when-compile (require 'cl)) ; for lexical-let
+(eval-when-compile (require 'cl-lib)) ; for lexical-let
 (require 'tramp) ; for tramp-tramp-file-p
 (require 'dired-aux) ; for dired-dwim-target-directory
 (require 'dash)
@@ -223,7 +223,7 @@ dired-buffer modeline."
     (setq dired-rsync-job-count (1+ dired-rsync-job-count))
     (dired-rsync--update-modeline)))
 
-(defun dired--rsync-remote-to/from-local-cmd (sfiles dest)
+(defun dired-rsync--remote-to-from-local-cmd (sfiles dest)
   "Construct a rsync command for remote to local or local to remote copy.
 
 Fortunately both forms are broadly the same."
@@ -238,7 +238,7 @@ Fortunately both forms are broadly the same."
                    final-dest)))))
 
 ;; ref: https://unix.stackexchange.com/questions/183504/how-to-rsync-files-between-two-remotes
-(defun dired--rsync-remote-to-remote-cmd (shost sfiles dhost duser dpath)
+(defun dired-rsync--remote-to-remote-cmd (shost sfiles dhost duser dpath)
   "Construct and trigger an rsync run for a remote to remote copy.
 
 rsync doesn't support this mode of operation but we can fake it by
@@ -258,7 +258,7 @@ there."
                       duser
                       dpath)))))
 
-; (dired--rsync-remote-to-remote-cmd "seed" '("a" "b" "c") "host" "user" "/video")
+; (dired-rsync--remote-to-remote-cmd "seed" '("a" "b" "c") "host" "user" "/video")
 
 
 ;;;###autoload
@@ -288,9 +288,9 @@ ssh/scp tramp connections."
                     (dhost (dired-rsync--extract-host-from-tramp dest t))
                     (duser (dired-rsync--extract-user-from-tramp dest))
                     (dpath (-first-item (dired-rsync--extract-paths-from-tramp (list dest)))))
-                (dired--rsync-remote-to-remote-cmd shost src-files
+                (dired-rsync--remote-to-remote-cmd shost src-files
                                                    dhost duser dpath))
-            (dired--rsync-remote-to/from-local-cmd sfiles dest)))
+            (dired-rsync--remote-to-from-local-cmd sfiles dest)))
     (dired-rsync--do-run cmd
                          (list :marked-files sfiles
                                :dired-buffer (buffer-name)))))
