@@ -211,15 +211,14 @@ dired-buffer modeline."
   "Run rsync COMMAND in a unique buffer, passing DETAILS to sentinel."
   (let* ((buf (format "*rsync @ %s" (current-time-string)))
          (proc (start-process-shell-command "*rsync*" buf command)))
-    (lexical-let ((job-details details))
-      (set-process-sentinel
-       proc
-       #'(lambda (proc desc)
-           (dired-rsync--sentinel proc desc job-details)))
-      (set-process-filter
-       proc
-       #'(lambda (proc string)
-           (dired-rsync--filter proc string job-details))))
+    (set-process-sentinel
+     proc
+     #'(lambda (proc desc)
+         (dired-rsync--sentinel proc desc details)))
+    (set-process-filter
+     proc
+     #'(lambda (proc string)
+         (dired-rsync--filter proc string details)))
     (setq dired-rsync-job-count (1+ dired-rsync-job-count))
     (dired-rsync--update-modeline)))
 
