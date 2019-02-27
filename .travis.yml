@@ -1,6 +1,16 @@
 language: minimal
 sudo: required
 dist: trusty
+os:
+  - linux
+  - osx
+addons:
+  homebrew:
+    packages:
+      - autoconf
+      - automake
+      - gnutls
+      - texinfo
 cache:
 - directories:
   - "$HOME/emacs"
