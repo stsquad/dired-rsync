@@ -91,9 +91,10 @@
     (shell-quote-argument file-or-path)))
 
 (defun dired-rsync--extract-host-from-tramp (file-or-path &optional split-user)
-  "Extract the host part of a tramp path.
+  "Extract the tramp host part of FILE-OR-PATH.
 
-We assume hosts don't need quoting."
+It SPLIT-USER is set we remove the user@ part as well.  We assume
+hosts don't need quoting."
   (let ((parts (s-split ":" file-or-path)))
     (let ((host (nth 1 parts)))
       (if (and split-user (s-contains? "@" host))
@@ -105,14 +106,14 @@ We assume hosts don't need quoting."
 ;; (dired-rsync--extract-host-from-tramp "/ssh:user@host:/path/to/file.txt" t)
 
 (defun dired-rsync--extract-user-from-tramp (file-or-path)
-  "Extract the username part of a tramp path."
+  "Extract the username part of a tramp FILE-OR-PATH."
   (when (s-contains? "@" file-or-path)
     (nth 1 (s-split ":" (nth 0 (s-split "@" file-or-path))))))
 
 ; (dired-rsync--extract-user-from-tramp "/ssh:user@host:/path/to/file.txt")
 
 (defun dired-rsync--extract-paths-from-tramp (files)
-  "Extract the path part of a tramp path and quote it."
+  "Extract the path part of a tramp FILES and quote it."
   (--map
    (let ((parts (s-split ":" it)))
      (shell-quote-argument (nth 2 parts)))
@@ -223,8 +224,9 @@ dired-buffer modeline."
     (dired-rsync--update-modeline)))
 
 (defun dired-rsync--remote-to-from-local-cmd (sfiles dest)
-  "Construct a rsync command for remote to local or local to remote copy.
+  "Construct a rsync command for SFILES to DEST copy.
 
+This handles both remote to local or local to remote copy.
 Fortunately both forms are broadly the same."
   (let ((src-files
          (-map 'dired-rsync--quote-and-maybe-convert-from-tramp sfiles))
@@ -238,11 +240,12 @@ Fortunately both forms are broadly the same."
 
 ;; ref: https://unix.stackexchange.com/questions/183504/how-to-rsync-files-between-two-remotes
 (defun dired-rsync--remote-to-remote-cmd (shost sfiles dhost duser dpath)
-  "Construct and trigger an rsync run for a remote to remote copy.
+  "Construct and trigger an rsync run for remote copy.
+The source SHOST and SFILES to remote DUSER @ DHOST to DPATH.
 
 rsync doesn't support this mode of operation but we can fake it by
 providing a port forward from the source host which we pass onto the
-destination. This requires ssh'ing to the source and running the rsync
+destination.  This requires ssh'ing to the source and running the rsync
 there."
   (s-join " " (-flatten
                (list "ssh" "-A"
