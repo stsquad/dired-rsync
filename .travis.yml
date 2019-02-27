@@ -20,7 +20,7 @@ matrix:
   - env: EMACS_VERSION=snapshot
 env:
   global:
-    - EMAKE_SHA1=2f22d5b272443246e4b4c4b3a23533be78655f2e
+    - EMAKE_SHA1=7c2fdc5b5d911c219710ac7560db182f39a5d605
     - EMACS_DIR=$HOME/emacs
     - EMACS=$HOME/emacs/src/emacs
   matrix:
@@ -30,7 +30,6 @@ env:
     - EMACS_VERSION=26.1
     - EMACS_VERSION=snapshot
 before_install:
-  - sudo rm -rf "$HOME/emacs"
   - make setup
   - wget "https://raw.githubusercontent.com/vermiculus/emake.el/${EMAKE_SHA1}/emake.mk"
 install:
