@@ -137,10 +137,10 @@ neither is set we simply display the current number of jobs."
                      (format " R:%d %s!!" dired-rsync-job-count err)
                      'font-lock-face '(:foreground "red")))
                ;; we still have jobs but no error
+               ((> dired-rsync-job-count 1)
+                (format " R:%d" dired-rsync-job-count))
                ((> dired-rsync-job-count 0)
-                (if ind
-                    (format " R:%s" ind)
-                  (format " R:%d" dired-rsync-job-count)))
+                (format " R:%s" (or ind dired-rsync-job-count)))
                ;; nothing going on
                (t nil)))))
 
