@@ -20,8 +20,12 @@ endif
 setup: emacs
 
 travis-script:
+# test uncompiled
+	$(MAKE) test-ert
 # test compilation
 	$(MAKE) compile
+# test compiled
+	$(MAKE) test-ert
 # linting
 	$(MAKE) lint-package-lint
 	$(MAKE) lint-checkdoc
