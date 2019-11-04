@@ -8,6 +8,7 @@
 ;;; Code:
 
 (require 'ert)
+(require 'dired-rsync)
 
 (ert-deftest dired-rsync-test-extract-host ()
   "Test the various extractions of host from sources."
