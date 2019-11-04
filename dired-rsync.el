@@ -100,16 +100,12 @@ hosts don't need quoting."
           (nth 1 (s-split "@" host))
         host))))
 
-;; (dired-rsync--extract-host-from-tramp "/ssh:host:/path/to/file.txt")
-;; (dired-rsync--extract-host-from-tramp "/ssh:user@host:/path/to/file.txt")
-;; (dired-rsync--extract-host-from-tramp "/ssh:user@host:/path/to/file.txt" t)
 
 (defun dired-rsync--extract-user-from-tramp (file-or-path)
   "Extract the username part of a tramp FILE-OR-PATH."
   (when (s-contains? "@" file-or-path)
     (nth 1 (s-split ":" (nth 0 (s-split "@" file-or-path))))))
 
-; (dired-rsync--extract-user-from-tramp "/ssh:user@host:/path/to/file.txt")
 
 (defun dired-rsync--extract-paths-from-tramp (files)
   "Extract the path part of a tramp FILES and quote it."
@@ -118,8 +114,6 @@ hosts don't need quoting."
      (shell-quote-argument (nth 2 parts)))
    files))
 
-; (dired-rsync--extract-paths-from-tramp '("/ssh:host:/path/to/file.txt" "/ssh:host:/path/to/file2.txt"))
-; (dired-rsync--extract-paths-from-tramp '("/ssh:host:/path/to/file.txt"))
 
 ;; Update status with count/speed
 (defun dired-rsync--update-modeline (&optional err ind)
@@ -258,8 +252,6 @@ there."
                       (s-join " " sfiles)
                       duser
                       dpath)))))
-
-; (dired-rsync--remote-to-remote-cmd "seed" '("a" "b" "c") "user" "host" "/video")
 
 
 ;;;###autoload
