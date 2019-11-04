@@ -31,7 +31,7 @@ travis-script:
 	$(MAKE) lint-checkdoc
 
 emacs: SHELL := /bin/bash
-emacs:
+emacs: emake.mk
 	bash -e <(curl -fsSkL 'https://raw.githubusercontent.com/vermiculus/emake.el/$(EMAKE_SHA1)/install-emacs')
 
 clean:
