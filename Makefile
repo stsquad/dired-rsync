@@ -1,6 +1,6 @@
 # EMACS_VERSION should be set in your ~/.profile on your development machine
 EMACS_VERSION         ?= 26.1
-EMAKE_SHA1            ?= 7c2fdc5b5d911c219710ac7560db182f39a5d605
+EMAKE_SHA1            ?= 4f6a4f75dff0071d0572484197c3ebbdfbb1497f
 PACKAGE_BASENAME      := dired-rsync
 
 # override defaults
