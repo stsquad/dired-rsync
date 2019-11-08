@@ -63,6 +63,15 @@
   :type 'boolean
   :group 'dired-rsync)
 
+(defun dired-rsync--default-fetch-marked-files ()
+  "Default fetcher of marked files."
+  (dired-get-marked-files nil current-prefix-arg))
+
+(defcustom dired-rsync-source-files 'dired-rsync--default-fetch-marked-files
+  "Function to collect the list of source files from dired."
+  :type 'function
+  :group 'dired-sync)
+
 ;; Internal variables
 (defvar dired-rsync-job-count 0
   "Count of running rsync jobs.")
@@ -271,7 +280,7 @@ ssh/scp tramp connections."
 
   (setq dest (expand-file-name dest))
 
-  (let ((sfiles (dired-get-marked-files nil current-prefix-arg))
+  (let ((sfiles (funcall dired-rsync-source-files))
         (cmd))
     (setq cmd
           (if (and (tramp-tramp-file-p dest)

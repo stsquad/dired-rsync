@@ -34,6 +34,10 @@ the number of currently active ~dired-rsync~ jobs currently running.
 For those that don't like the way ~dired-rsync~ unmarks transferred
 files when it completes please see ~dired-rsync-unmark-on-completion~.
 
+If you want to tweak the way marks are collected you can customise
+~dired-rsync-source-files~ and provide your own function to return a
+list of fully qualified names to include in the command.
+
 The options ~dired-rsync-command~ and ~dired-rsync-options~ are there
 to modify the call to rsync but a user is unlikely to need to tweak
 these.

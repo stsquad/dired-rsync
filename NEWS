@@ -4,6 +4,8 @@ v0.5 (prerelease)
    - make dired-rsync process dest with expand-file-name
    - we now support remote to remote with an ugly port forward hack
    - prompt the user for a passphrase if we detect stall in process
+   - add some basic eret tests
+   - new customisation option dired-rsync-source-files
 v0.4
    - convert dired-rsync-[command|options] to defcustom
    - added dired-rsync-unmark-on-completion option
