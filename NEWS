@@ -6,6 +6,7 @@ v0.5 (prerelease)
    - prompt the user for a passphrase if we detect stall in process
    - add some basic eret tests
    - new customisation option dired-rsync-source-files
+   - new customisation hook dired-rsync-failed-hook
 v0.4
    - convert dired-rsync-[command|options] to defcustom
    - added dired-rsync-unmark-on-completion option

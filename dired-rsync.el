@@ -72,6 +72,21 @@
   :type 'function
   :group 'dired-sync)
 
+(defun dired-rsync--default-rsync-failed ()
+  "Report rsync failure to console."
+  (message "dired-rsync: failed (see %s for details)"
+           (current-buffer)))
+
+(defun dired-rsync--pop-to-rsync-failed-buf ()
+  "Jump to a recently failed buffer."
+  (pop-to-buffer-same-window (current-buffer)))
+
+(defcustom dired-rsync-failed-hook '(dired-rsync--default-rsync-failed)
+  "Hook run when rsync fails.
+It is run in the context of the failed process buffer."
+  :type 'hook
+  :group 'dired-rsync)
+
 ;; Internal variables
 (defvar dired-rsync-job-count 0
   "Count of running rsync jobs.")
@@ -160,19 +175,23 @@ neither is set we simply display the current number of jobs."
 This gets called whenever the inferior `PROC' changes state as
   described by `DESC'.  `DETAILS' provides access to additional
   information such as the locate of the dired-buffer."
-  (message "sentinal: %s/%s" desc (process-live-p proc))
-  (when (s-starts-with-p "finished" desc)
-    ;; clean-up finished tasks
-    (let ((proc-buf (process-buffer proc))
-          (dired-buf (plist-get details ':dired-buffer)))
-      (when dired-rsync-unmark-on-completion
-        (with-current-buffer dired-buf
-          (dired-unmark-all-marks)))
-      (kill-buffer proc-buf)))
-  ;; clean-up data left from dead/finished processes
-  (when (not (process-live-p proc))
-    (setq dired-rsync-job-count (1- dired-rsync-job-count)))
-  (dired-rsync--update-modeline))
+  (let ((proc-buf (process-buffer proc)))
+    (when (s-starts-with-p "finished" desc)
+      ;; clean-up finished tasks
+      (let ((dired-buf (plist-get details ':dired-buffer)))
+        (when dired-rsync-unmark-on-completion
+          (with-current-buffer dired-buf
+            (dired-unmark-all-marks)))
+        (kill-buffer proc-buf)))
+    ;; clean-up data left from dead/finished processes
+    (when (not (process-live-p proc))
+      (setq dired-rsync-job-count (1- dired-rsync-job-count)))
+    (dired-rsync--update-modeline)
+    ;; If we still have a process buffer things didn't end well
+    (when (and (not (process-live-p proc))
+               (buffer-name proc-buf))
+      (with-current-buffer proc-buf
+        (run-hooks 'dired-rsync-failed-hook)))))
 
 
 (defun dired-rsync--filter (proc string details)
