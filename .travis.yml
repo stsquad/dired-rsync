@@ -38,4 +38,5 @@ before_install:
   # Install elisp dependencies
   - cask install
 script:
-  - make test
+  - cask compile
+  - cask exec ert-runner dired-rsync-ert.el
