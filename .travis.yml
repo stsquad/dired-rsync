@@ -6,7 +6,7 @@ addons:
   apt:
     update: true
     sources:
-      sourceline: 'ppa:ubuntu-elisp/ppa'
+      - sourceline: 'ppa:ubuntu-elisp/ppa'
     packages:
       - python
       - emacs-nox
