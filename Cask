@@ -8,7 +8,6 @@
 
 ;; part of Emacs
 (depends-on "tramp")
-(depends-on "dired-aux")
 (depends-on "rx")
 
 ;; melpa packages
