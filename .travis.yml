@@ -1,20 +1,11 @@
 language: emacs-lisp
 os:
   - linux
-  - osx
 addons:
   apt:
     update: true
-    sources:
-      - sourceline: 'ppa:ubuntu-elisp/ppa'
     packages:
       - python
-      - emacs-nox
-  homebrew:
-    packages:
-      - cask
-      - emacs
-    update: true
 cache:
 - directories:
   - "$HOME/emacs"
