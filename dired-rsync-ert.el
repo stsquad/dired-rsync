@@ -8,6 +8,10 @@
 ;;; Code:
 
 (require 'ert)
+
+(when (require 'undercover nil t)
+  (undercover "dired-rsync.el"))
+
 (require 'dired-rsync)
 
 (ert-deftest dired-rsync-test-extract-host ()
