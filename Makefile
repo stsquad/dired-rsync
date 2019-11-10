@@ -6,9 +6,6 @@ emacs ?= emacs
 
 all: test
 
-update:
-	cask install
-
 # Use LC_ALL=C to avoid locale dependencies in the dates!
 test: clean
 	LC_ALL=C $(emacs) -l dired-rsync-ert.el -l dired-rsync.el -f ert-run-tests-batch-and-exit
