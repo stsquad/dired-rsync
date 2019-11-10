@@ -1,10 +1,10 @@
-v0.5 (prerelease)
-   - minor CI clean-ups
+v0.5
+   - Big CI clean-ups (dropped emake, added Cask)
    - smarter modeline status (show R:n% when one job running)
    - make dired-rsync process dest with expand-file-name
    - we now support remote to remote with an ugly port forward hack
    - prompt the user for a passphrase if we detect stall in process
-   - add some basic eret tests
+   - add some basic ert tests
    - new customisation option dired-rsync-source-files
    - new customisation hook dired-rsync-failed-hook
 v0.4
