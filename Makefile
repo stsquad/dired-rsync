@@ -1,41 +1,22 @@
-# EMACS_VERSION should be set in your ~/.profile on your development machine
-EMACS_VERSION         ?= 26.1
-EMAKE_SHA1            ?= 4f6a4f75dff0071d0572484197c3ebbdfbb1497f
-PACKAGE_BASENAME      := dired-rsync
+#
+# Makefile for automation
+#
 
-# override defaults
-PACKAGE_ARCHIVES      := gnu melpa-stable
-PACKAGE_TEST_DEPS     := s dash package-lint
-PACKAGE_TEST_ARCHIVES := gnu melpa-stable
+emacs ?= emacs
 
-.DEFAULT_GOAL: help
+all: test
 
-emake.mk:                       ## download the emake Makefile
-	wget 'https://raw.githubusercontent.com/vermiculus/emake.el/$(EMAKE_SHA1)/emake.mk'
+update:
+	cask install
 
-ifeq ($(TRAVIS_OS_NAME),osx)
-export EMACS_CONFIGURE_ARGS := --with-ns --with-modules
-endif
+# Use LC_ALL=C to avoid locale dependencies in the dates!
+test: clean
+	LC_ALL=C $(emacs) -l dired-rsync-ert.el -l dired-rsync.el -f ert-run-tests-batch-and-exit
 
-setup: emacs
-
-travis-script:
-# test uncompiled
-	$(MAKE) test-ert
-# test compilation
-	$(MAKE) compile
-# test compiled
-	$(MAKE) test-ert
-# linting
-	$(MAKE) lint-package-lint
-	$(MAKE) lint-checkdoc
-
-emacs: SHELL := /bin/bash
-emacs:
-	bash -e <(curl -fsSkL 'https://raw.githubusercontent.com/vermiculus/emake.el/$(EMAKE_SHA1)/install-emacs')
+compile:
+	$(emacs) -Q -batch -f batch-byte-compile dired-rsync.el
 
 clean:
-	rm -rf $(EMAKE_WORKDIR)
-	rm -f $(PACKAGE_LISP:.el=.elc)
+	rm -f f.elc
 
-include emake.mk
+.PHONY:	all test
