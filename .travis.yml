@@ -20,7 +20,7 @@ cache:
   - "$HOME/emacs"
   fast_finish: true
   allow_failures:
-  - env: EVM_EMACS=emacs-git-snapshot-travis
+  - env: EVM_EMACS=remacs-git-snapshot-travis
 env:
   matrix:
     - EVM_EMACS=emacs-24.4-travis
@@ -37,7 +37,7 @@ before_install:
   - evm config path /tmp
   - evm list
   # use this version of emacs for tests
-  - evm install "${EMACS_VERSION}-travis" --use --skip
+  - evm install "${EVM_EMACS}" --use --skip
   - evm list
   - emacs --version
   # install cask
