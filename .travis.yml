@@ -1,12 +1,12 @@
 language: emacs-lisp
-os:
-  - linux
+os: linux
+dist: xenial
 addons:
   apt:
     update: true
     packages:
       - python
-      - libgnutlsxx28
+
 cache:
 - directories:
   - "$HOME/emacs"
@@ -20,8 +20,11 @@ env:
     - EVM_EMACS=emacs-25.1-travis
     - EVM_EMACS=emacs-25.2-travis
     - EVM_EMACS=emacs-25.3-travis
-    - EVM_EMACS=emacs-26.1-travis
+    - EVM_EMACS=emacs-26.3-travis-xenial
+    - EVM_EMACS=emacs-26.3-travis-xenial
+    - EVM_EMACS=emacs-git-snapshot-travis-linux-xenial
     - EVM_EMACS=remacs-git-snapshot-travis
+
 before_install:
   # Install evm
   - git clone https://github.com/rejeep/evm.git ~/.evm
