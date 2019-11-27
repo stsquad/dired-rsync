@@ -6,6 +6,7 @@ addons:
     update: true
     packages:
       - python
+      - libgnutlsxx28
 cache:
 - directories:
   - "$HOME/emacs"
