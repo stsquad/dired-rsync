@@ -108,36 +108,9 @@ It is run in the context of the failed process buffer."
 (defun dired-rsync--quote-and-maybe-convert-from-tramp (file-or-path)
   "Reformat a tramp FILE-OR-PATH to one usable for rsync."
   (if (tramp-tramp-file-p file-or-path)
-      ;; tramp format is /method:remote:path
-      (let ((parts (s-split ":" file-or-path)))
-        (format "%s:\"%s\"" (nth 1 parts) (shell-quote-argument (nth 2 parts))))
+      (with-parsed-tramp-file-name file-or-path tfop
+        (format "%s:\"%s\"" tfop-host (shell-quote-argument tfop-localname)))
     (shell-quote-argument file-or-path)))
-
-(defun dired-rsync--extract-host-from-tramp (file-or-path &optional split-user)
-  "Extract the tramp host part of FILE-OR-PATH.
-
-It SPLIT-USER is set we remove the user@ part as well.  We assume
-hosts don't need quoting."
-  (let ((parts (s-split ":" file-or-path)))
-    (let ((host (nth 1 parts)))
-      (if (and split-user (s-contains? "@" host))
-          (nth 1 (s-split "@" host))
-        host))))
-
-
-(defun dired-rsync--extract-user-from-tramp (file-or-path)
-  "Extract the username part of a tramp FILE-OR-PATH."
-  (when (s-contains? "@" file-or-path)
-    (nth 1 (s-split ":" (nth 0 (s-split "@" file-or-path))))))
-
-
-(defun dired-rsync--extract-paths-from-tramp (files)
-  "Extract the path part of a tramp FILES and quote it."
-  (--map
-   (let ((parts (s-split ":" it)))
-     (shell-quote-argument (nth 2 parts)))
-   files))
-
 
 ;; Update status with count/speed
 (defun dired-rsync--update-modeline (&optional err ind)
@@ -281,6 +254,15 @@ there."
                       duser
                       dpath)))))
 
+(defun dired-rsync--command (sfiles dest)
+  (if (and (tramp-tramp-file-p dest)
+           (tramp-tramp-file-p (-first-item sfiles)))
+      (with-parsed-tramp-file-name (-first-item sfiles) src
+        (with-parsed-tramp-file-name dest dest
+          (dired-rsync--remote-to-remote-cmd src-host src-localname
+                                             dest-user dest-host dest-localname)))
+
+    (dired-rsync--remote-to-from-local-cmd sfiles dest)))
 
 ;;;###autoload
 (defun dired-rsync (dest)
@@ -294,27 +276,14 @@ the copy is running.  It also handles both source and destinations on
 ssh/scp tramp connections."
   ;; Interactively grab dest if not called with
   (interactive
-   (list (read-file-name "rsync to:" (dired-dwim-target-directory)
+   (list (read-file-name "rsync to: " (dired-dwim-target-directory)
                          nil nil nil 'file-directory-p)))
 
-  (setq dest (expand-file-name dest))
-
-  (let ((sfiles (funcall dired-rsync-source-files))
-        (cmd))
-    (setq cmd
-          (if (and (tramp-tramp-file-p dest)
-                   (tramp-tramp-file-p (-first-item sfiles)))
-              (let ((shost (dired-rsync--extract-host-from-tramp (-first-item sfiles)))
-                    (src-files (dired-rsync--extract-paths-from-tramp sfiles))
-                    (dhost (dired-rsync--extract-host-from-tramp dest t))
-                    (duser (dired-rsync--extract-user-from-tramp dest))
-                    (dpath (-first-item (dired-rsync--extract-paths-from-tramp (list dest)))))
-                (dired-rsync--remote-to-remote-cmd shost src-files
-                                                   duser dhost dpath))
-            (dired-rsync--remote-to-from-local-cmd sfiles dest)))
-    (dired-rsync--do-run cmd
-                         (list :marked-files sfiles
-                               :dired-buffer (buffer-name)))))
+  (let ((sfiles (funcall dired-rsync-source-files)))
+    (dired-rsync--do-run
+     (dired-rsync--command sfiles (expand-file-name dest))
+     (list :marked-files sfiles
+           :dired-buffer (buffer-name)))))
 
 (provide 'dired-rsync)
 ;;; dired-rsync.el ends here
