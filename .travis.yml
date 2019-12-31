@@ -42,6 +42,6 @@ before_install:
   # Install elisp dependencies
   - cask install
 script:
-  - cask exec ert-runner dired-rsync-ert.el
+  - if [ "$EVM_EMACS" != "emacs-git-snapshot-travis-linux-xenial" ] ; then cask exec ert-runner dired-rsync-ert.el ; fi
   - cask build
   - cask exec ert-runner dired-rsync-ert.el
