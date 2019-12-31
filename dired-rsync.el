@@ -1,6 +1,6 @@
 ;;; dired-rsync.el --- Allow rsync from dired buffers -*- lexical-binding: t -*-
 ;;
-;; Copyright (C) 2018 Alex Bennée
+;; Copyright (C) 2018, 2019, 2020 Alex Bennée
 ;;
 ;; Author: Alex Bennée <alex@bennee.com>
 ;; Maintainer: Alex Bennée <alex@bennee.com>
