@@ -118,11 +118,10 @@ It is run in the context of the failed process buffer."
 
 It SPLIT-USER is set we remove the user@ part as well.  We assume
 hosts don't need quoting."
-  (let ((parts (s-split ":" file-or-path)))
-    (let ((host (nth 1 parts)))
-      (if (and split-user (s-contains? "@" host))
-          (nth 1 (s-split "@" host))
-        host))))
+  (with-parsed-tramp-file-name file-or-path tfop
+    (if (or split-user (not tfop-user))
+        tfop-host
+      (format "%s@%s" tfop-user tfop-host))))
 
 
 (defun dired-rsync--extract-user-from-tramp (file-or-path)
