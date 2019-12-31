@@ -294,7 +294,7 @@ the copy is running.  It also handles both source and destinations on
 ssh/scp tramp connections."
   ;; Interactively grab dest if not called with
   (interactive
-   (list (read-file-name "rsync to:" (dired-dwim-target-directory)
+   (list (read-file-name "rsync to: " (dired-dwim-target-directory)
                          nil nil nil 'file-directory-p)))
 
   (setq dest (expand-file-name dest))
