@@ -123,11 +123,15 @@ hosts don't need quoting."
         tfop-host
       (format "%s@%s" tfop-user tfop-host))))
 
-
+;; This is tricky for remote-to-remote because we may have an implied
+;; user from the local config which isn't available on the remote
+;; .ssh/config
 (defun dired-rsync--extract-user-from-tramp (file-or-path)
   "Extract the username part of a tramp FILE-OR-PATH."
-  (when (s-contains? "@" file-or-path)
-    (nth 1 (s-split ":" (nth 0 (s-split "@" file-or-path))))))
+  (with-parsed-tramp-file-name file-or-path tfop
+    (or tfop-user
+        ; somehow extract .ssh/config user for tfop-host
+        (getenv "USER"))))
 
 
 (defun dired-rsync--extract-paths-from-tramp (files)
@@ -230,6 +234,7 @@ dired-buffer modeline."
 
 (defun dired-rsync--do-run (command details)
   "Run rsync COMMAND in a unique buffer, passing DETAILS to sentinel."
+  (message "cmd:%s" command)
   (let* ((buf (format "*rsync @ %s" (current-time-string)))
          (proc (start-process-shell-command "*rsync*" buf command)))
     (set-process-sentinel

@@ -30,7 +30,11 @@
   "Test the various extractions of user from paths."
   (should (string-equal "user"
                         (dired-rsync--extract-user-from-tramp
-                         "/ssh:user@host:/path/to/file.txt"))))
+                         "/ssh:user@host:/path/to/file.txt")))
+  (let ((tramp-default-user "wibble"))
+    (should (string-equal "wibble"
+                          (dired-rsync--extract-user-from-tramp
+                           "/ssh:host:/path/to/file.txt")))))
 
 
 (ert-deftest dired-rsync-test-extract-path()
