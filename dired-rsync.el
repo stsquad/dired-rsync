@@ -103,6 +103,10 @@ It is run in the context of the failed process buffer."
   (rx (** 1 3 digit) "%")
   "A regex to extract the % complete from a file.")
 
+(defvar dired-remote-portfwd
+  "ssh -p 50000 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
+  "An explicit ssh command for rsync to use port forwarded proxy.")
+
 ;; Helpers
 
 (defun dired-rsync--quote-and-maybe-convert-from-tramp (file-or-path)
@@ -280,7 +284,7 @@ there."
                       "'%s %s -e \"%s\" %s %s@localhost:%s'"
                       dired-rsync-command
                       dired-rsync-options
-                      "ssh -p 50000 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
+                      dired-remote-portfwd
                       (s-join " " sfiles)
                       duser
                       dpath)))))
