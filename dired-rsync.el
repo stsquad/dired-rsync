@@ -238,7 +238,6 @@ dired-buffer modeline."
 
 (defun dired-rsync--do-run (command details)
   "Run rsync COMMAND in a unique buffer, passing DETAILS to sentinel."
-  (message "cmd:%s" command)
   (let* ((buf (format "*rsync @ %s" (current-time-string)))
          (proc (start-process-shell-command "*rsync*" buf command)))
     (set-process-sentinel
