@@ -112,9 +112,8 @@ It is run in the context of the failed process buffer."
 (defun dired-rsync--quote-and-maybe-convert-from-tramp (file-or-path)
   "Reformat a tramp FILE-OR-PATH to one usable for rsync."
   (if (tramp-tramp-file-p file-or-path)
-      ;; tramp format is /method:remote:path
-      (let ((parts (s-split ":" file-or-path)))
-        (format "%s:\"%s\"" (nth 1 parts) (shell-quote-argument (nth 2 parts))))
+      (with-parsed-tramp-file-name file-or-path tfop
+        (format "%s:\"%s\"" tfop-host (shell-quote-argument tfop-localname)))
     (shell-quote-argument file-or-path)))
 
 (defun dired-rsync--extract-host-from-tramp (file-or-path &optional split-user)
