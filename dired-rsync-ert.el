@@ -52,7 +52,10 @@
                               '("/ssh:host:/path/to/file.txt")))))
   (should (string-equal "/path/to/pluralised\\'s.txt"
                         (car (dired-rsync--extract-paths-from-tramp
-                              '("/ssh:host:/path/to/pluralised's.txt"))))))
+                              '("/ssh:host:/path/to/pluralised's.txt")))))
+  (should (string-equal "/path/to/file.txt"
+                        (car (dired-rsync--extract-paths-from-tramp
+                              '("/ssh:servername|sudo:root@servername:/path/to/file.txt"))))))
 
 
 (ert-deftest dired-rsync-test-remote-remote-cmd ()

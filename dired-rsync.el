@@ -141,8 +141,8 @@ hosts don't need quoting."
 (defun dired-rsync--extract-paths-from-tramp (files)
   "Extract the path part of a tramp FILES and quote it."
   (--map
-   (let ((parts (s-split ":" it)))
-     (shell-quote-argument (nth 2 parts)))
+   (with-parsed-tramp-file-name it tfop
+     (shell-quote-argument tfop-localname))
    files))
 
 
