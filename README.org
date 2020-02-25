@@ -26,10 +26,8 @@ command to your preferred ~dired~ binding.
 
 A variable called ~dired-rsync-modeline-status~ is provided for mode
 lines that will report the number of active rsync operations in
-progress. However by default that value is also set in
-~mode-line-process~ which is a common place for things to report
-inferior process status. The variable ~dired-rsync-job-count~ contains
-the number of currently active ~dired-rsync~ jobs currently running.
+progress. The variable ~dired-rsync-job-count~ contains the number of
+currently active ~dired-rsync~ jobs currently running.
 
 For those that don't like the way ~dired-rsync~ unmarks transferred
 files when it completes please see ~dired-rsync-unmark-on-completion~.

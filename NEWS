@@ -1,3 +1,6 @@
+v0.6 (pre-release)
+   - use tramp functions to decompose name
+   - don't set mode-line-process, leave it to user to put dired-rsync-modeline-status somewhere
 v0.5
    - Big CI clean-ups (dropped emake, added Cask)
    - smarter modeline status (show R:n% when one job running)

@@ -154,20 +154,19 @@ hosts don't need quoting."
 alternative indication (such as a percentage completion).  If
 neither is set we simply display the current number of jobs."
   (force-mode-line-update)
-  (setq mode-line-process
-        (setq dired-rsync-modeline-status
-              (cond
-               ;; error has occurred
-               (err (propertize
-                     (format " R:%d %s!!" dired-rsync-job-count err)
-                     'font-lock-face '(:foreground "red")))
-               ;; we still have jobs but no error
-               ((> dired-rsync-job-count 1)
-                (format " R:%d" dired-rsync-job-count))
-               ((> dired-rsync-job-count 0)
-                (format " R:%s" (or ind dired-rsync-job-count)))
-               ;; nothing going on
-               (t nil)))))
+  (setq dired-rsync-modeline-status
+        (cond
+         ;; error has occurred
+         (err (propertize
+               (format " R:%d %s!!" dired-rsync-job-count err)
+               'font-lock-face '(:foreground "red")))
+         ;; we still have jobs but no error
+         ((> dired-rsync-job-count 1)
+          (format " R:%d" dired-rsync-job-count))
+         ((> dired-rsync-job-count 0)
+          (format " R:%s" (or ind dired-rsync-job-count)))
+         ;; nothing going on
+         (t nil))))
 
 ;;
 ;; Running rsync: We need to take care of a couple of things here. We
@@ -186,7 +185,8 @@ This gets called whenever the inferior `PROC' changes state as
     (when (s-starts-with-p "finished" desc)
       ;; clean-up finished tasks
       (let ((dired-buf (plist-get details ':dired-buffer)))
-        (when dired-rsync-unmark-on-completion
+        (when (and dired-rsync-unmark-on-completion
+                   (buffer-live-p dired-buf))
           (with-current-buffer dired-buf
             (dired-unmark-all-marks)))
         (kill-buffer proc-buf)))
@@ -219,8 +219,7 @@ dired-buffer modeline."
       (process-send-string proc (concat (read-passwd string) "\n")))
     ;; update if anything to report
     (when (or err indicator)
-      (with-current-buffer (plist-get details ':dired-buffer)
-        (dired-rsync--update-modeline err indicator))))
+      (dired-rsync--update-modeline err indicator)))
 
   ;; update the process buffer (we could just drop?)
   (let ((old-process-mark (process-mark proc)))
