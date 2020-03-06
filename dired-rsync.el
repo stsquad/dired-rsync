@@ -88,8 +88,8 @@ It is run in the context of the failed process buffer."
   :group 'dired-rsync)
 
 ;; Internal variables
-(defvar dired-rsync-job-count 0
-  "Count of running rsync jobs.")
+(defvar dired-rsync-proc-buffer-prefix "*rsync"
+  "Prefix for process buffers.")
 
 (defvar dired-rsync-modeline-status
   ""
@@ -145,6 +145,15 @@ hosts don't need quoting."
    files))
 
 
+;; Count active buffers
+(defun dired-rsync--get-active-buffers ()
+  "Return all currently active process buffers"
+  (--filter
+   (and (s-starts-with? dired-rsync-proc-buffer-prefix (buffer-name it))
+        (process-live-p (get-buffer-process it)))
+   (buffer-list)))
+
+
 ;; Update status with count/speed
 (defun dired-rsync--update-modeline (&optional err ind)
   "Update the modeline, optionally with `ERR' or `IND'.
@@ -153,19 +162,20 @@ hosts don't need quoting."
 alternative indication (such as a percentage completion).  If
 neither is set we simply display the current number of jobs."
   (force-mode-line-update)
-  (setq dired-rsync-modeline-status
-        (cond
-         ;; error has occurred
-         (err (propertize
-               (format " R:%d %s!!" dired-rsync-job-count err)
-               'font-lock-face '(:foreground "red")))
-         ;; we still have jobs but no error
-         ((> dired-rsync-job-count 1)
-          (format " R:%d" dired-rsync-job-count))
-         ((> dired-rsync-job-count 0)
-          (format " R:%s" (or ind dired-rsync-job-count)))
-         ;; nothing going on
-         (t nil))))
+  (let ((job-count (length (dired-rsync--get-active-buffers))))
+    (setq dired-rsync-modeline-status
+          (cond
+           ;; error has occurred
+           (err (propertize
+                 (format " R:%d %s!!" job-count err)
+                 'font-lock-face '(:foreground "red")))
+           ;; we still have jobs but no error
+           ((> job-count 1)
+            (format " R:%d" job-count))
+           ((> job-count 0)
+            (format " R:%s" (or ind job-count)))
+           ;; nothing going on
+           (t nil)))))
 
 ;;
 ;; Running rsync: We need to take care of a couple of things here. We
@@ -189,9 +199,6 @@ This gets called whenever the inferior `PROC' changes state as
           (with-current-buffer dired-buf
             (dired-unmark-all-marks)))
         (kill-buffer proc-buf)))
-    ;; clean-up data left from dead/finished processes
-    (when (not (process-live-p proc))
-      (setq dired-rsync-job-count (1- dired-rsync-job-count)))
     (dired-rsync--update-modeline)
     ;; If we still have a process buffer things didn't end well
     (when (and (not (process-live-p proc))
@@ -236,7 +243,7 @@ dired-buffer modeline."
 
 (defun dired-rsync--do-run (command details)
   "Run rsync COMMAND in a unique buffer, passing DETAILS to sentinel."
-  (let* ((buf (format "*rsync @ %s" (current-time-string)))
+  (let* ((buf (format "%s @ %s" dired-rsync-proc-buffer-prefix (current-time-string)))
          (proc (start-process-shell-command "*rsync*" buf command)))
     (set-process-sentinel
      proc
@@ -246,7 +253,6 @@ dired-buffer modeline."
      proc
      #'(lambda (proc string)
          (dired-rsync--filter proc string details)))
-    (setq dired-rsync-job-count (1+ dired-rsync-job-count))
     (dired-rsync--update-modeline)))
 
 (defun dired-rsync--remote-to-from-local-cmd (sfiles dest)
