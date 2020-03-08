@@ -146,12 +146,18 @@ hosts don't need quoting."
 
 
 ;; Count active buffers
+(defun dired-rsync--get-proc-buffers ()
+  "Return all dired-rsync process buffers."
+  (--filter
+   (and (s-starts-with? dired-rsync-proc-buffer-prefix (buffer-name it))
+        (get-buffer-process it))
+   (buffer-list)))
+
 (defun dired-rsync--get-active-buffers ()
   "Return all currently active process buffers"
   (--filter
-   (and (s-starts-with? dired-rsync-proc-buffer-prefix (buffer-name it))
-        (process-live-p (get-buffer-process it)))
-   (buffer-list)))
+   (process-live-p (get-buffer-process it))
+   (dired-rsync--get-proc-buffers)))
 
 
 ;; Update status with count/speed
@@ -174,6 +180,11 @@ neither is set we simply display the current number of jobs."
             (format " R:%d" job-count))
            ((> job-count 0)
             (format " R:%s" (or ind job-count)))
+           ;; Any stale?
+           ((dired-rsync--get-proc-buffers)
+            (propertize
+                 " R:hung :-("
+                 'font-lock-face '(:foreground "red")))
            ;; nothing going on
            (t nil)))))
 
