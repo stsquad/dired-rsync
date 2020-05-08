@@ -121,7 +121,8 @@ results of `dired-rsync--get-remote-port'.")
   "Reformat a tramp FILE-OR-PATH to one usable for rsync."
   (if (tramp-tramp-file-p file-or-path)
       (with-parsed-tramp-file-name file-or-path tfop
-        (format "%s:\"%s\"" tfop-host (shell-quote-argument tfop-localname)))
+        (format "%s%s:\"%s\"" (if tfop-user (format "%s@" tfop-user) "") tfop-host
+                (shell-quote-argument tfop-localname)))
     (shell-quote-argument file-or-path)))
 
 (defun dired-rsync--extract-host-from-tramp (file-or-path &optional split-user)
