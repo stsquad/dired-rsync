@@ -295,7 +295,7 @@ there."
                      "-R" (format "localhost:50000:%s:22" dhost)
                      shost
                      (format
-                      "'%s %s -e \"%s\" %s %s@localhost:%s'"
+                      "\"%s %s -e \\\"%s\\\" %s %s@localhost:%s\""
                       dired-rsync-command
                       dired-rsync-options
                       dired-remote-portfwd
