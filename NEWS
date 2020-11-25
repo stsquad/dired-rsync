@@ -1,5 +1,7 @@
 v0.6 (pre-release)
    - use tramp functions to decompose name
+   - fix escaping of 's for remote-to-remote copies
+   - increment the reverse proxy port based on active connections
    - don't set mode-line-process, leave it to user to put dired-rsync-modeline-status somewhere
 v0.5
    - Big CI clean-ups (dropped emake, added Cask)
