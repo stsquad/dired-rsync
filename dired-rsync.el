@@ -104,10 +104,18 @@ It is run in the context of the failed process buffer."
   "A regex to extract the % complete from a file.")
 
 (defvar dired-remote-portfwd
-  "ssh -p 50000 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
-  "An explicit ssh command for rsync to use port forwarded proxy.")
+  "ssh -p %d -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
+  "An explicit ssh command for rsync to use port forwarded proxy.
+The string is treated as a format string where %d is replaced with the
+results of `dired-rsync--get-remote-port'.")
 
 ;; Helpers
+(defun dired-rsync--get-remote-port ()
+  "Return the remote port we shall use for the reverse port-forward."
+  (+ 50000 (length (dired-rsync--get-active-buffers))))
+
+(defun dired-rsync--get-remote-portfwd ()
+  (format dired-remote-portfwd (dired-rsync--get-remote-port)))
 
 (defun dired-rsync--quote-and-maybe-convert-from-tramp (file-or-path)
   "Reformat a tramp FILE-OR-PATH to one usable for rsync."
@@ -292,13 +300,14 @@ destination.  This requires ssh'ing to the source and running the rsync
 there."
   (s-join " " (-flatten
                (list "ssh" "-A"
-                     "-R" (format "localhost:50000:%s:22" dhost)
+                     "-R" (format "localhost:%d:%s:22"
+                                  (dired-rsync--get-remote-port) dhost)
                      shost
                      (format
                       "\"%s %s -e \\\"%s\\\" %s %s@localhost:%s\""
                       dired-rsync-command
                       dired-rsync-options
-                      dired-remote-portfwd
+                      (dired-rsync--get-remote-portfwd)
                       (s-join " " sfiles)
                       duser
                       dpath)))))
