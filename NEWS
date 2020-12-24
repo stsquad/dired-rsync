@@ -1,6 +1,8 @@
-v0.6 (pre-release)
-   - use tramp functions to decompose name
+v0.6
+   - use tramp functions to decompose URIs (fix #22)
+   - use username from dired URI if we have it in rsync
    - fix escaping of 's for remote-to-remote copies
+   - better detection of running jobs by parsing buffers
    - increment the reverse proxy port based on active connections
    - don't set mode-line-process, leave it to user to put dired-rsync-modeline-status somewhere
 v0.5
