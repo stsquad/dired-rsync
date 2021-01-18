@@ -26,13 +26,5 @@ test-dired-rsync:
     - cask exec ert-runner dired-rsync-ert.el
   parallel:
     matrix:
-      - EVM_EMACS=emacs-24.4-travis
-      - EVM_EMACS=emacs-24.5-travis
-      - EVM_EMACS=emacs-25.1-travis
-      - EVM_EMACS=emacs-25.2-travis
-      - EVM_EMACS=emacs-25.3-travis
-      - EVM_EMACS=emacs-26.1-travis-linux-xenial
-      - EVM_EMACS=emacs-26.3-travis-linux-xenial
-      - EVM_EMACS=emacs-git-snapshot-travis-linux-xenial
-      - EVM_EMACS=remacs-git-snapshot-travis
+      - EVM_EMACS: [emacs-24.4-travis, emacs-24.5-travis, emacs-25.1-travis, emacs-25.2-travis, emacs-25.3-travis, emacs-26.1-travis-linux-xenial, emacs-26.3-travis-linux-xenial, emacs-git-snapshot-travis-linux-xenial, remacs-git-snapshot-travis]
       
