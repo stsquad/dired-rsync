@@ -4,7 +4,7 @@
 
 test-dired-rsync:
   image: debian:latest
-  before_install:
+  before_script:
     # Install evm
     - git clone https://github.com/rejeep/evm.git ~/.evm
     - export PATH="$HOME/.evm/bin:$PATH"
@@ -24,14 +24,15 @@ test-dired-rsync:
     - if [ "$EVM_EMACS" != "emacs-git-snapshot-travis-linux-xenial" ] ; then cask exec ert-runner dired-rsync-ert.el ; fi
     - cask build
     - cask exec ert-runner dired-rsync-ert.el
-  matrix:
-    - EVM_EMACS=emacs-24.4-travis
-    - EVM_EMACS=emacs-24.5-travis
-    - EVM_EMACS=emacs-25.1-travis
-    - EVM_EMACS=emacs-25.2-travis
-    - EVM_EMACS=emacs-25.3-travis
-    - EVM_EMACS=emacs-26.1-travis-linux-xenial
-    - EVM_EMACS=emacs-26.3-travis-linux-xenial
-    - EVM_EMACS=emacs-git-snapshot-travis-linux-xenial
-    - EVM_EMACS=remacs-git-snapshot-travis
+  parallel:
+    matrix:
+      - EVM_EMACS=emacs-24.4-travis
+      - EVM_EMACS=emacs-24.5-travis
+      - EVM_EMACS=emacs-25.1-travis
+      - EVM_EMACS=emacs-25.2-travis
+      - EVM_EMACS=emacs-25.3-travis
+      - EVM_EMACS=emacs-26.1-travis-linux-xenial
+      - EVM_EMACS=emacs-26.3-travis-linux-xenial
+      - EVM_EMACS=emacs-git-snapshot-travis-linux-xenial
+      - EVM_EMACS=remacs-git-snapshot-travis
       
