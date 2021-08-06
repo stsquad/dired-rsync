@@ -346,7 +346,7 @@ ssh/scp tramp connections."
             (dired-rsync--remote-to-from-local-cmd sfiles dest)))
     (dired-rsync--do-run cmd
                          (list :marked-files sfiles
-                               :dired-buffer (buffer-name)))))
+                               :dired-buffer (current-buffer)))))
 
 (provide 'dired-rsync)
 ;;; dired-rsync.el ends here
