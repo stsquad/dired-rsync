@@ -1,3 +1,5 @@
+v0.7
+   - new customisation hook dired-rsync-success-hook
 v0.6
    - use tramp functions to decompose URIs (fix #22)
    - use username from dired URI if we have it in rsync

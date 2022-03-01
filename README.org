@@ -40,7 +40,8 @@ From time to time the call to rsync may fail. dired-rsync keeps the
 process buffer around for debugging and reports to the console. You
 can customise ~dired-rsync-failed-hook~ with your own hook function or
 select the more aggressive ~dired-rsync--pop-to-rsync-failed-buf~ to
-pop straight to the buffer.
+pop straight to the buffer. Also you can customise ~dired-rsync-success-hook~
+with your own hook function to provide notification for compleated transfers.
 
 The options ~dired-rsync-command~ and ~dired-rsync-options~ are there
 to modify the call to rsync but a user is unlikely to need to tweak
