@@ -87,6 +87,11 @@ It is run in the context of the failed process buffer."
   :type 'hook
   :group 'dired-rsync)
 
+(defcustom dired-rsync-success-hook nil
+  "Hook run when rsync success."
+  :type 'hook
+  :group 'dired-rsync)
+
 ;; Internal variables
 (defvar dired-rsync-proc-buffer-prefix "*rsync"
   "Prefix for process buffers.")
@@ -218,7 +223,8 @@ This gets called whenever the inferior `PROC' changes state as
                    (buffer-live-p dired-buf))
           (with-current-buffer dired-buf
             (dired-unmark-all-marks)))
-        (kill-buffer proc-buf)))
+        (kill-buffer proc-buf))
+      (run-hooks 'dired-rsync-success-hook))
     (dired-rsync--update-modeline)
     ;; If we still have a process buffer things didn't end well
     (when (and (not (process-live-p proc))
