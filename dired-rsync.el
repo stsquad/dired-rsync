@@ -126,7 +126,7 @@ results of `dired-rsync--get-remote-port'.")
   "Reformat a tramp FILE-OR-PATH to one usable for rsync."
   (if (tramp-tramp-file-p file-or-path)
       (with-parsed-tramp-file-name file-or-path tfop
-        (format "%s%s:\"%s\"" (if tfop-user (format "%s@" tfop-user) "") tfop-host
+        (format "%s%s:%s" (if tfop-user (format "%s@" tfop-user) "") tfop-host
                 (shell-quote-argument tfop-localname)))
     (shell-quote-argument file-or-path)))
 
@@ -293,6 +293,7 @@ Fortunately both forms are broadly the same."
             (-flatten
              (list dired-rsync-command
                    dired-rsync-options
+                   "--"
                    src-files
                    final-dest)))))
 
@@ -311,7 +312,7 @@ there."
                                   (dired-rsync--get-remote-port) dhost)
                      shost
                      (format
-                      "\"%s %s -e \\\"%s\\\" %s %s@localhost:%s\""
+                      "\"%s %s -e \\\"%s\\\" -- %s %s@localhost:%s\""
                       dired-rsync-command
                       dired-rsync-options
                       (dired-rsync--get-remote-portfwd)
