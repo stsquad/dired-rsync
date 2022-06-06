@@ -53,7 +53,7 @@
   :type 'string
   :group 'dired-rsync)
 
-(defcustom dired-rsync-options "-az --info=progress2"
+(defcustom dired-rsync-options "-az --info=progress2 --"
   "The default options for the rsync command."
   :type 'string
   :group 'dired-rsync)
@@ -126,7 +126,7 @@ results of `dired-rsync--get-remote-port'.")
   "Reformat a tramp FILE-OR-PATH to one usable for rsync."
   (if (tramp-tramp-file-p file-or-path)
       (with-parsed-tramp-file-name file-or-path tfop
-        (format "%s%s:\"%s\"" (if tfop-user (format "%s@" tfop-user) "") tfop-host
+        (format "%s%s:%s" (if tfop-user (format "%s@" tfop-user) "") tfop-host
                 (shell-quote-argument tfop-localname)))
     (shell-quote-argument file-or-path)))
 
