@@ -57,7 +57,10 @@ password (because ssh-agent is working) then rsync should work fine.
 
 You can also do a remote-to-remote copy although this does involve
 setting up a port forward so the first remote can access the second
-remote. It's ugly but it works.
+remote. Also as dired-rsync needs to reverse ssh from your source
+location it is best if you fully qualify the location in tramp (i.e.
+user@remote:/dest/path) so it can extract the correct username to
+login with. It's ugly but it works.
 
 The test used by ~dired-rsync~ is ~tramp-tramp-file-p~ which will mean
 any tramp path will attempt to be converted to an rsync path with
