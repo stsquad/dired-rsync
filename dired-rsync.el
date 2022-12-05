@@ -269,17 +269,21 @@ dired-buffer modeline."
 
 (defun dired-rsync--do-run (command details)
   "Run rsync COMMAND in a unique buffer, passing DETAILS to sentinel."
-  (let* ((buf (format "%s @ %s" dired-rsync-proc-buffer-prefix (current-time-string)))
-         (proc (start-process-shell-command "*rsync*" buf command)))
-    (set-process-sentinel
-     proc
-     #'(lambda (proc desc)
-         (dired-rsync--sentinel proc desc details)))
-    (set-process-filter
-     proc
-     #'(lambda (proc string)
-         (dired-rsync--filter proc string details)))
-    (dired-rsync--update-modeline)))
+  (apply #'make-process
+	 (append (list :name "*rsync*"
+		       :buffer (format "%s @ %s"
+				       dired-rsync-proc-buffer-prefix
+				       (current-time-string))
+		       :command (list shell-file-name
+				      shell-command-switch
+				      command)
+		       :sentinel (lambda (proc desc)
+				   (dired-rsync--sentinel proc desc details))
+		       :filter (lambda (proc string)
+				 (dired-rsync--filter proc string details)))
+		 (when (eq window-system 'ns)
+		   (list :coding 'mac))))
+  (dired-rsync--update-modeline))
 
 (defun dired-rsync--remote-to-from-local-cmd (sfiles dest)
   "Construct a rsync command for SFILES to DEST copy.
