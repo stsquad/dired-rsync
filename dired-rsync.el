@@ -324,6 +324,18 @@ there."
                       duser
                       dpath)))))
 
+(defun dired-rsync--build-cmd (sfiles dest)
+  "Construct a rsync command for SFILES to DEST copy."
+  (if (and (tramp-tramp-file-p dest)
+           (tramp-tramp-file-p (-first-item sfiles)))
+      (let ((shost (dired-rsync--extract-host-from-tramp (-first-item sfiles)))
+            (src-files (dired-rsync--extract-paths-from-tramp sfiles))
+            (dhost (dired-rsync--extract-host-from-tramp dest t))
+            (duser (dired-rsync--extract-user-from-tramp dest))
+            (dpath (-first-item (dired-rsync--extract-paths-from-tramp (list dest)))))
+        (dired-rsync--remote-to-remote-cmd shost src-files
+                                           duser dhost dpath))
+    (dired-rsync--remote-to-from-local-cmd sfiles dest)))
 
 ;;;###autoload
 (defun dired-rsync (dest)
@@ -342,19 +354,8 @@ ssh/scp tramp connections."
 
   (setq dest (expand-file-name dest))
 
-  (let ((sfiles (funcall dired-rsync-source-files))
-        (cmd))
-    (setq cmd
-          (if (and (tramp-tramp-file-p dest)
-                   (tramp-tramp-file-p (-first-item sfiles)))
-              (let ((shost (dired-rsync--extract-host-from-tramp (-first-item sfiles)))
-                    (src-files (dired-rsync--extract-paths-from-tramp sfiles))
-                    (dhost (dired-rsync--extract-host-from-tramp dest t))
-                    (duser (dired-rsync--extract-user-from-tramp dest))
-                    (dpath (-first-item (dired-rsync--extract-paths-from-tramp (list dest)))))
-                (dired-rsync--remote-to-remote-cmd shost src-files
-                                                   duser dhost dpath))
-            (dired-rsync--remote-to-from-local-cmd sfiles dest)))
+  (let* ((sfiles (funcall dired-rsync-source-files))
+         (cmd (dired-rsync--build-cmd sfiles dest)))
     (dired-rsync--do-run cmd
                          (list :marked-files sfiles
                                :dired-buffer (current-buffer)))))
