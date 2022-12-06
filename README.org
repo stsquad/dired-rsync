@@ -6,10 +6,10 @@
 
 * Introduction
 
-This package adds a single command ~dired-rsync~ which allows the user
-to copy marked files in a ~dired~ buffer via rsync. This is useful,
+This package adds the command ~dired-rsync~ which allows the user to
+copy marked files in a ~dired~ buffer via rsync. This is useful,
 especially for large files, because the copy happens in the background
-and doesn't lock up Emacs. It is also more efficient than using tramps
+and doesn't lock up Emacs. It is also more efficient than using tramp's
 own encoding methods for moving data between systems.
 
 Configuration is simple as you only need to bind the ~dired-rsync~
@@ -18,8 +18,20 @@ command to your preferred ~dired~ binding.
 #+name: configuring-dired-rsync
 #+begin_src emacs-lisp
 (use-package dired-rsync
-  :config
-  (bind-key "C-c C-r" 'dired-rsync dired-mode-map))
+  :bind (:map dired-mode-map
+              ("C-c C-r" . dired-rsync))
+#+end_src
+
+A second package in this repository provides a transient version
+called ~dired-transient-rsync~. This wraps the command in a `magit`
+like transient interface allowing you to tweaks the parameters for
+your call.
+
+#+name: configuring-dired-transient-rsync
+#+begin_src emacs-lisp
+(use-package dired-transient-rsync
+  :bind (:map dired-mode-map
+              ("C-c C-x" . dired-rsync-transient)))
 #+end_src
 
 * Customisation
