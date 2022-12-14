@@ -5,7 +5,7 @@
 ;; Author: Alex Bennée <alex@bennee.com>
 ;; Maintainer: Alex Bennée <alex@bennee.com>
 ;; Version: 0.6
-;; Package-Requires: ((dired-rsync "0.6") (transient "0.3.0"))
+;; Package-Requires: ((dired-rsync "0.6") (transient "0.3.0") (emacs "24.4"))
 ;; Homepage: https://github.com/stsquad/dired-rsync
 ;;
 ;; This file is not part of GNU Emacs.
@@ -49,10 +49,10 @@
    ("=d" "delete extraneous files from dest dirs" "--delete" :level 6)
    ("=s" "skip files that match in size" "--size-only" :level 6)
    ("=i" "include files matching PATTERN" "--include="
-    :multi-value t :reader dired-rsync--read-multiple
+    :multi-value t :reader dired-rsync-transient--read-multiple
     :prompt "include (e.g. ‘*.pdf’ or ‘*.org, *.el’): " :level 6)
    ("=e" "exclude files matching PATTERN" "--exclude="
-    :multi-value t :reader dired-rsync--read-multiple
+    :multi-value t :reader dired-rsync-transient--read-multiple
     :prompt "exclude (e.g. ‘.git’ or ‘*.bin, *.elc’): ")
    ("=o" "other rsync options" "--options="
     :prompt "Other options (e.g. -v -n): ")]
@@ -73,7 +73,7 @@
   (interactive nil dired-mode)
   (transient-setup 'dired-rsync-transient))
 
-(defun dired-rsync--read-multiple (prompt &optional _initial-input history)
+(defun dired-rsync-transient--read-multiple (prompt &optional _initial-input history)
   "Read multiple values."
   (completing-read-multiple prompt nil nil nil nil history))
 
