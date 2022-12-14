@@ -74,7 +74,7 @@
   (transient-setup 'dired-rsync-transient))
 
 (defun dired-rsync-transient--read-multiple (prompt &optional _initial-input history)
-  "Read multiple values."
+  "Read multiple values after PROMPT with optional INITIAL_INPUT and HISTORY."
   (completing-read-multiple prompt nil nil nil nil history))
 
 (defun dired-rsync-transient--get-options (args)
