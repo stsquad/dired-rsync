@@ -5,7 +5,7 @@
 ;; Author: Alex Bennée <alex@bennee.com>
 ;; Maintainer: Alex Bennée <alex@bennee.com>
 ;; Version: 0.6
-;; Package-Requires: ((s "1.12.0") (dash "2.0.0") (emacs "24"))
+;; Package-Requires: ((s "1.12.0") (dash "2.0.0") (emacs "24.1"))
 ;; Homepage: https://github.com/stsquad/dired-rsync
 ;;
 ;; This file is not part of GNU Emacs.
