@@ -108,7 +108,7 @@ It is run in the context of the failed process buffer."
   (rx (** 1 3 digit) "%")
   "A regex to extract the % complete from a file.")
 
-(defvar dired-remote-portfwd
+(defvar dired-rsync-remote-portfwd
   "ssh -p %d -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
   "An explicit ssh command for rsync to use port forwarded proxy.
 The string is treated as a format string where %d is replaced with the
@@ -120,7 +120,7 @@ results of `dired-rsync--get-remote-port'.")
   (+ 50000 (length (dired-rsync--get-active-buffers))))
 
 (defun dired-rsync--get-remote-portfwd ()
-  (format dired-remote-portfwd (dired-rsync--get-remote-port)))
+  (format dired-rsync-remote-portfwd (dired-rsync--get-remote-port)))
 
 (defun dired-rsync--quote-and-maybe-convert-from-tramp (file-or-path)
   "Reformat a tramp FILE-OR-PATH to one usable for rsync."
