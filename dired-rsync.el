@@ -233,13 +233,12 @@ This gets called whenever the inferior `PROC' changes state as
         (run-hooks 'dired-rsync-failed-hook)))))
 
 
-(defun dired-rsync--filter (proc string details)
-  "`PROC' rsync process filter, insert `STRING' into buffer with `DETAILS'.
+(defun dired-rsync--filter (proc string)
+  "`PROC' rsync process filter, insert `STRING' into buffer.
 
 This gets called with string whenever there is new data to
 display in the process buffer.  We scan the string to extract useful
-information and can use `DETAILS' to find and update the original
-dired-buffer modeline."
+information and update the dired-rsync-modeline-status."
 
   ;; scan the new string
   (let ((err nil) (indicator nil))
@@ -280,7 +279,7 @@ dired-buffer modeline."
 		       :sentinel (lambda (proc desc)
 				   (dired-rsync--sentinel proc desc details))
 		       :filter (lambda (proc string)
-				 (dired-rsync--filter proc string details)))
+				 (dired-rsync--filter proc string)))
 		 (when (eq window-system 'ns)
 		   (list :coding 'mac))))
   (dired-rsync--update-modeline))
