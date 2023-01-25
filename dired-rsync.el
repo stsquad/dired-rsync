@@ -262,8 +262,13 @@ information and update the dired-rsync-modeline-status."
             ;; Insert the text, advancing the process marker.
             (goto-char old-process-mark)
             (insert string)
-            (set-marker (process-mark proc) (point)))
-          (if moving (goto-char (process-mark proc))))))))
+            (set-marker (process-mark proc) (point))
+            ;; Delete old text upto the newline
+            (goto-char (point-max))
+            (when (search-backward "\r")
+              (delete-region (point-min) (+ 1 (match-beginning 0)))))
+          (if moving
+              (goto-char (process-mark proc))))))))
 
 
 (defun dired-rsync--do-run (command details)
@@ -279,9 +284,7 @@ information and update the dired-rsync-modeline-status."
 		       :sentinel (lambda (proc desc)
 				   (dired-rsync--sentinel proc desc details))
 		       :filter (lambda (proc string)
-				 (dired-rsync--filter proc string)))
-		 (when (eq window-system 'ns)
-		   (list :coding 'mac))))
+				 (dired-rsync--filter proc string)))))
   (dired-rsync--update-modeline))
 
 (defun dired-rsync--remote-to-from-local-cmd (sfiles dest)
