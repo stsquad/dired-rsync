@@ -1,4 +1,8 @@
 v0.7
+   - truncate process buffer output to last status line
+   - raise minimum Emacs version to 25.1
+   - new dired-rsync-transient frontend
+   - various code clean-ups
    - new customisation hook dired-rsync-success-hook
 v0.6
    - use tramp functions to decompose URIs (fix #22)
