@@ -23,13 +23,13 @@ command to your preferred ~dired~ binding.
 #+end_src
 
 A second package in this repository provides a transient version
-called ~dired-transient-rsync~. This wraps the command in a `magit`
+called ~dired-rsync-transient~. This wraps the command in a `magit`
 like transient interface allowing you to tweaks the parameters for
 your call.
 
-#+name: configuring-dired-transient-rsync
+#+name: configuring-dired-rsync-transient
 #+begin_src emacs-lisp
-(use-package dired-transient-rsync
+(use-package dired-rsync-transient
   :bind (:map dired-mode-map
               ("C-c C-x" . dired-rsync-transient)))
 #+end_src
