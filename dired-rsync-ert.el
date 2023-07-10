@@ -36,6 +36,12 @@
                           (dired-rsync--extract-user-from-tramp
                            "/ssh:host:/path/to/file.txt")))))
 
+(ert-deftest dired-rsync-test-extract-port ()
+  "Test the various extractions of port from paths."
+  (should-not (dired-rsync--extract-port-from-tramp "/path/to/file.txt"))
+  (should (string-equal "1022"
+                        (dired-rsync--extract-port-from-tramp
+                         "/ssh:user@host#1022:/path/to/file.txt"))))
 
 (ert-deftest dired-rsync-test-extract-path()
   "Test the various extractions of the path."
@@ -75,12 +81,16 @@
   "Test we generate a good remote to remote command."
   (should (string-equal
            "ssh -A -R localhost:50000:host:22 seed \"rsync -az --info=progress2 -e \\\"ssh -p 50000 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null\\\" -- a b c's user@localhost:/video\""
-           (dired-rsync--remote-to-remote-cmd "seed" '("a" "b" "c's") "user"
-                                              "host" "/video")))
+           (dired-rsync--remote-to-remote-cmd "seed" nil '("a" "b" "c's") "user"
+                                              "host" nil "/video")))
+  (should (string-equal
+           "ssh -A -p 23 -R localhost:50000:host:1022 seed \"rsync -az --info=progress2 -e \\\"ssh -p 50000 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null\\\" -- a b c's user@localhost:/video\""
+           (dired-rsync--remote-to-remote-cmd "seed" "23" '("a" "b" "c's") "user"
+                                              "host" "1022" "/video")))
   (cl-letf (((symbol-function 'dired-rsync--get-active-buffers) (lambda() '(1 2))))
     (should (string-equal
            "ssh -A -R localhost:50002:host:22 seed \"rsync -az --info=progress2 -e \\\"ssh -p 50002 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null\\\" -- a b c's user@localhost:/video\""
-           (dired-rsync--remote-to-remote-cmd "seed" '("a" "b" "c's") "user"
-                                              "host" "/video")))))
+           (dired-rsync--remote-to-remote-cmd "seed" nil '("a" "b" "c's") "user"
+                                              "host" nil "/video")))))
 
 ;;; dired-rsync-ert.el ends here
