@@ -150,6 +150,11 @@ hosts don't need quoting."
         ; somehow extract .ssh/config user for tfop-host
         (getenv "USER"))))
 
+(defun dired-rsync--extract-port-from-tramp (file-or-path)
+  "Extract the port part of a tramp FILE-OR-PATH."
+  (when (tramp-tramp-file-p file-or-path)
+    (with-parsed-tramp-file-name file-or-path tfop
+      tfop-port)))
 
 (defun dired-rsync--extract-paths-from-tramp (files)
   "Extract the path part of a tramp FILES and quote it."
@@ -294,17 +299,20 @@ This handles both remote to local or local to remote copy.
 Fortunately both forms are broadly the same."
   (let ((src-files
          (-map 'dired-rsync--quote-and-maybe-convert-from-tramp sfiles))
-        (final-dest (dired-rsync--quote-and-maybe-convert-from-tramp dest)))
+        (final-dest (dired-rsync--quote-and-maybe-convert-from-tramp dest))
+        (ssh-port (-some #'dired-rsync--extract-port-from-tramp
+                         (append (list dest) sfiles))))
     (s-join " "
             (-flatten
              (list dired-rsync-command
                    dired-rsync-options
+		   (when ssh-port (format "-e 'ssh -p %s'" ssh-port))
                    "--"
                    src-files
                    final-dest)))))
 
 ;; ref: https://unix.stackexchange.com/questions/183504/how-to-rsync-files-between-two-remotes
-(defun dired-rsync--remote-to-remote-cmd (shost sfiles duser dhost dpath)
+(defun dired-rsync--remote-to-remote-cmd (shost sport sfiles duser dhost dport dpath)
   "Construct and trigger an rsync run for remote copy.
 The source SHOST and SFILES to remote DUSER @ DHOST to DPATH.
 
@@ -313,9 +321,10 @@ providing a port forward from the source host which we pass onto the
 destination.  This requires ssh'ing to the source and running the rsync
 there."
   (s-join " " (-flatten
-               (list "ssh" "-A"
-                     "-R" (format "localhost:%d:%s:22"
-                                  (dired-rsync--get-remote-port) dhost)
+               (list "ssh" "-A" (when sport (format "-p %s" sport))
+                     "-R" (format "localhost:%d:%s:%s"
+                                  (dired-rsync--get-remote-port) dhost
+                                  (or dport "22"))
                      shost
                      (format
                       "\"%s %s -e \\\"%s\\\" -- %s %s@localhost:%s\""
@@ -331,12 +340,14 @@ there."
   (if (and (tramp-tramp-file-p dest)
            (tramp-tramp-file-p (-first-item sfiles)))
       (let ((shost (dired-rsync--extract-host-from-tramp (-first-item sfiles)))
+            (sport (dired-rsync--extract-port-from-tramp (-first-item sfiles)))
             (src-files (dired-rsync--extract-paths-from-tramp sfiles))
             (dhost (dired-rsync--extract-host-from-tramp dest t))
+            (dport (dired-rsync--extract-port-from-tramp dest))
             (duser (dired-rsync--extract-user-from-tramp dest))
             (dpath (-first-item (dired-rsync--extract-paths-from-tramp (list dest)))))
-        (dired-rsync--remote-to-remote-cmd shost src-files
-                                           duser dhost dpath))
+        (dired-rsync--remote-to-remote-cmd shost sport src-files
+                                           duser dhost dport dpath))
     (dired-rsync--remote-to-from-local-cmd sfiles dest)))
 
 ;;;###autoload
