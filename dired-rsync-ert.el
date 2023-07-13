@@ -74,12 +74,12 @@
 (ert-deftest dired-rsync-test-remote-remote-cmd ()
   "Test we generate a good remote to remote command."
   (should (string-equal
-           "ssh -A -R localhost:50000:host:22 seed \"rsync -az --info=progress2 -e \\\"ssh -p 50000 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null\\\" a b c's user@localhost:/video\""
+           "ssh -A -R localhost:50000:host:22 seed \"rsync -az --info=progress2 -e \\\"ssh -p 50000 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null\\\" -- a b c's user@localhost:/video\""
            (dired-rsync--remote-to-remote-cmd "seed" '("a" "b" "c's") "user"
                                               "host" "/video")))
   (cl-letf (((symbol-function 'dired-rsync--get-active-buffers) (lambda() '(1 2))))
     (should (string-equal
-           "ssh -A -R localhost:50002:host:22 seed \"rsync -az --info=progress2 -e \\\"ssh -p 50002 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null\\\" a b c's user@localhost:/video\""
+           "ssh -A -R localhost:50002:host:22 seed \"rsync -az --info=progress2 -e \\\"ssh -p 50002 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null\\\" -- a b c's user@localhost:/video\""
            (dired-rsync--remote-to-remote-cmd "seed" '("a" "b" "c's") "user"
                                               "host" "/video")))))
 
