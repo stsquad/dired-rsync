@@ -60,9 +60,9 @@
 (ert-deftest dired-rsync-test-quote-and-maybe-convert-from-tramp ()
   "Test quote and maybe convert from tramp defun"
   ;; test against regression of issue #26: missing username in rsync command
-  (should (string-equal "username@192.168.1.1:\"/blat/blot/\""
+  (should (string-equal "username@192.168.1.1:/blat/blot/"
                         (dired-rsync--quote-and-maybe-convert-from-tramp "/scp:username@192.168.1.1:/blat/blot/")))
-  (should (string-equal "192.168.1.1:\"/blat/blot/\""
+  (should (string-equal "192.168.1.1:/blat/blot/"
                         (dired-rsync--quote-and-maybe-convert-from-tramp "/scp:192.168.1.1:/blat/blot/"))))
 
 (ert-deftest dired-rsync-test-remote-port()
