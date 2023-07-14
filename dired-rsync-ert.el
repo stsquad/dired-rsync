@@ -9,7 +9,9 @@
 
 (require 'ert)
 
-(when (require 'undercover nil t)
+;;
+(when (and (version<= "26.1" emacs-version)
+           (require 'undercover nil t))
   (undercover "dired-rsync.el"))
 
 (require 'dired-rsync)

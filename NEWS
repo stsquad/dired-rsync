@@ -4,6 +4,8 @@ v0.7
    - new dired-rsync-transient frontend
    - various code clean-ups
    - new customisation hook dired-rsync-success-hook
+   - moved the project CI to GitHub Actions
+   - now understands alternate port syntax in tramp URIs
 v0.6
    - use tramp functions to decompose URIs (fix #22)
    - use username from dired URI if we have it in rsync
