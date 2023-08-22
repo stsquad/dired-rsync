@@ -270,7 +270,7 @@ information and update the dired-rsync-modeline-status."
             (set-marker (process-mark proc) (point))
             ;; Delete old text upto the newline
             (goto-char (point-max))
-            (when (search-backward "\r")
+            (when (search-backward "\r" nil t)
               (delete-region (point-min) (+ 1 (match-beginning 0)))))
           (if moving
               (goto-char (process-mark proc))))))))
