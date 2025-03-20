@@ -19,7 +19,7 @@ command to your preferred ~dired~ binding.
 #+begin_src emacs-lisp
 (use-package dired-rsync
   :bind (:map dired-mode-map
-              ("C-c C-r" . dired-rsync))
+              ("C-c C-r" . dired-rsync)))
 #+end_src
 
 A second package in this repository provides a transient version
