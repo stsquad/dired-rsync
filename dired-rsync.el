@@ -25,12 +25,12 @@
 ;;
 ;;; Commentary:
 ;;
-;; dired-rsync is a command that can be run from a dired buffer to
+;; dired-rsync is a command that can be run from a Dired buffer to
 ;; copy files using rsync rather than tramps in-built mechanism.
 ;; This is especially useful for copying large files to/from remote
 ;; locations without locking up tramp.
 ;;
-;; To use simply open a dired buffer, mark some files and invoke
+;; To use simply open a Dired buffer, mark some files and invoke
 ;; dired-rsync.  After being prompted for a location to copy to an
 ;; inferior rsync process will be spawned.
 ;;
@@ -68,7 +68,7 @@
   (dired-get-marked-files nil current-prefix-arg))
 
 (defcustom dired-rsync-source-files 'dired-rsync--default-fetch-marked-files
-  "Function to collect the list of source files from dired."
+  "Function to collect the list of source files from Dired."
   :type 'function
   :group 'dired-sync)
 
@@ -120,6 +120,7 @@ results of `dired-rsync--get-remote-port'.")
   (+ 50000 (length (dired-rsync--get-active-buffers))))
 
 (defun dired-rsync--get-remote-portfwd ()
+  "Format the results of `dired-rsync--get-remote-port' as a string."
   (format dired-rsync-remote-portfwd (dired-rsync--get-remote-port)))
 
 (defun dired-rsync--quote-and-maybe-convert-from-tramp (file-or-path)
@@ -173,7 +174,7 @@ hosts don't need quoting."
    (buffer-list)))
 
 (defun dired-rsync--get-active-buffers ()
-  "Return all currently active process buffers"
+  "Return all currently active process buffers."
   (--filter
    (process-live-p (get-buffer-process it))
    (dired-rsync--get-proc-buffers)))
@@ -352,7 +353,7 @@ there."
 
 ;;;###autoload
 (defun dired-rsync (dest)
-  "Asynchronously copy files in dired to `DEST' using rsync.
+  "Asynchronously copy files in Dired to `DEST' using rsync.
 
 `DEST' can be a relative filename and will be processed by
 `expand-file-name' before being passed to the rsync command.
