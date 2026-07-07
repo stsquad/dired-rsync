@@ -53,8 +53,8 @@
                                 "/ssh:host:/path/to/file2.txt")))))
   (should (string-equal "/path/to/file2.txt"
                         (nth 1 (dired-rsync--extract-paths-from-tramp
-                              '("/ssh:host:/path/to/file.txt"
-                                "/ssh:host:/path/to/file2.txt")))))
+                                '("/ssh:host:/path/to/file.txt"
+                                  "/ssh:host:/path/to/file2.txt")))))
   (should (string-equal "/path/to/file.txt"
                         (car (dired-rsync--extract-paths-from-tramp
                               '("/ssh:host:/path/to/file.txt")))))
@@ -77,7 +77,7 @@
   "Test the remote port handling."
   (should (= 50000 (dired-rsync--get-remote-port)))
   (cl-letf (((symbol-function 'dired-rsync--get-active-buffers) (lambda() '(1 2))))
-   (should (= 50002 (dired-rsync--get-remote-port)))))
+    (should (= 50002 (dired-rsync--get-remote-port)))))
 
 (ert-deftest dired-rsync-test-remote-remote-cmd ()
   "Test we generate a good remote to remote command."
@@ -91,8 +91,8 @@
                                               "host" "1022" "/video")))
   (cl-letf (((symbol-function 'dired-rsync--get-active-buffers) (lambda() '(1 2))))
     (should (string-equal
-           "ssh -A -R localhost:50002:host:22 seed \"rsync -az --info=progress2 -e \\\"ssh -p 50002 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null\\\" -- a b c's user@localhost:/video\""
-           (dired-rsync--remote-to-remote-cmd "seed" nil '("a" "b" "c's") "user"
-                                              "host" nil "/video")))))
+             "ssh -A -R localhost:50002:host:22 seed \"rsync -az --info=progress2 -e \\\"ssh -p 50002 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null\\\" -- a b c's user@localhost:/video\""
+             (dired-rsync--remote-to-remote-cmd "seed" nil '("a" "b" "c's") "user"
+                                                "host" nil "/video")))))
 
 ;;; dired-rsync-ert.el ends here

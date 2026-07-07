@@ -148,7 +148,7 @@ hosts don't need quoting."
   "Extract the username part of a tramp FILE-OR-PATH."
   (with-parsed-tramp-file-name file-or-path tfop
     (or tfop-user
-        ; somehow extract .ssh/config user for tfop-host
+        ;; somehow extract .ssh/config user for tfop-host
         (getenv "USER"))))
 
 (defun dired-rsync--extract-port-from-tramp (file-or-path)
@@ -202,9 +202,8 @@ neither is set we simply display the current number of jobs."
             (format " R:%s" (or ind job-count)))
            ;; Any stale?
            ((dired-rsync--get-proc-buffers)
-            (propertize
-                 " R:hung :-("
-                 'font-lock-face '(:foreground "red")))
+            (propertize " R:hung :-("
+                        'font-lock-face '(:foreground "red")))
            ;; nothing going on
            (t nil)))))
 
@@ -280,17 +279,17 @@ information and update the dired-rsync-modeline-status."
 (defun dired-rsync--do-run (command details)
   "Run rsync COMMAND in a unique buffer, passing DETAILS to sentinel."
   (apply #'make-process
-	 (append (list :name "*rsync*"
-		       :buffer (format "%s @ %s"
-				       dired-rsync-proc-buffer-prefix
-				       (current-time-string))
-		       :command (list shell-file-name
-				      shell-command-switch
-				      command)
-		       :sentinel (lambda (proc desc)
-				   (dired-rsync--sentinel proc desc details))
-		       :filter (lambda (proc string)
-				 (dired-rsync--filter proc string)))))
+         (append (list :name "*rsync*"
+                       :buffer (format "%s @ %s"
+                                       dired-rsync-proc-buffer-prefix
+                                       (current-time-string))
+                       :command (list shell-file-name
+                                      shell-command-switch
+                                      command)
+                       :sentinel (lambda (proc desc)
+                                   (dired-rsync--sentinel proc desc details))
+                       :filter (lambda (proc string)
+                                 (dired-rsync--filter proc string)))))
   (dired-rsync--update-modeline))
 
 (defun dired-rsync--remote-to-from-local-cmd (sfiles dest)
@@ -307,7 +306,7 @@ Fortunately both forms are broadly the same."
             (-flatten
              (list dired-rsync-command
                    dired-rsync-options
-		   (when ssh-port (format "-e 'ssh -p %s'" ssh-port))
+                   (when ssh-port (format "-e 'ssh -p %s'" ssh-port))
                    "--"
                    src-files
                    final-dest)))))
