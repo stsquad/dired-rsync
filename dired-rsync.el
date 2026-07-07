@@ -37,6 +37,11 @@
 ;; Wherever the files are selected from, the rsync will always run from
 ;; your local machine.
 ;;
+;; To display the progress of a running rsync process in the mode line, you can
+;; use something like the following in your init file:
+;;
+;; (add-to-list 'mode-line-modes
+;;              '(dired-rsync-modeline-status dired-rsync-modeline-status))
 
 (require 'tramp) ; for tramp-tramp-file-p
 (require 'dired-aux) ; for dired-dwim-target-directory
