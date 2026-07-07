@@ -195,22 +195,24 @@ neither is set we simply display the current number of jobs."
   (force-mode-line-update)
   (let ((job-count (length (dired-rsync--get-active-buffers))))
     (setq dired-rsync-modeline-status
-          (cond
-           ;; error has occurred
-           (err (propertize
-                 (format " R:%d %s!!" job-count err)
-                 'font-lock-face '(:foreground "red")))
-           ;; we still have jobs but no error
-           ((> job-count 1)
-            (format " R:%d" job-count))
-           ((> job-count 0)
-            (format " R:%s" (or ind job-count)))
-           ;; Any stale?
-           ((dired-rsync--get-proc-buffers)
-            (propertize " R:hung :-("
-                        'font-lock-face '(:foreground "red")))
-           ;; nothing going on
-           (t nil)))))
+          (string-replace
+           "%" "%%"
+           (cond
+            ;; error has occurred
+            (err (propertize
+                  (format " R:%d %s!!" job-count err)
+                  'font-lock-face '(:foreground "red")))
+            ;; we still have jobs but no error
+            ((> job-count 1)
+             (format " R:%d" job-count))
+            ((> job-count 0)
+             (format " R:%s" (or ind job-count)))
+            ;; Any stale?
+            ((dired-rsync--get-proc-buffers)
+             (propertize " R:hung :-("
+                         'font-lock-face '(:foreground "red")))
+            ;; nothing going on
+            (t nil))))))
 
 ;;
 ;; Running rsync: We need to take care of a couple of things here. We
