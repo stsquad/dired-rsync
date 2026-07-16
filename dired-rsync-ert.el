@@ -95,6 +95,37 @@
              (dired-rsync--remote-to-remote-cmd "seed" nil '("a" "b" "c's") "user"
                                                 "host" nil "/video")))))
 
+(ert-deftest dired-rsync-test-get-proc-buffers ()
+  "Test dired-rsync--get-proc-buffers by mocking buffer-list and get-buffer-process."
+  (cl-letf (((symbol-function 'buffer-list) (lambda () '("*rsync @ 1" "*some-other-buffer*" "*rsync @ 2" "*rsync @ 3")))
+            ((symbol-function 'buffer-name) (lambda (buf) buf))
+            (mock-proc-1 (list :name "proc1" :buffer "*rsync @ 1"))
+            (mock-proc-2 (list :name "proc2" :buffer "*rsync @ 2"))
+            ((symbol-function 'get-buffer-process) (lambda (buf)
+                                                    (cond
+                                                     ((string-equal buf "*rsync @ 1") mock-proc-1)
+                                                     ((string-equal buf "*rsync @ 2") mock-proc-2)
+                                                     (t nil)))))
+    (should (equal '("*rsync @ 1" "*rsync @ 2") (dired-rsync--get-proc-buffers)))))
+
+(ert-deftest dired-rsync-test-get-active-buffers ()
+  "Test dired-rsync--get-active-buffers by mocking buffer-list, get-buffer-process, and process-live-p."
+  (cl-letf (((symbol-function 'buffer-list) (lambda () '("*rsync @ 1" "*some-other-buffer*" "*rsync @ 2" "*rsync @ 3")))
+            ((symbol-function 'buffer-name) (lambda (buf) buf))
+            (mock-proc-1 (list :name "proc1" :buffer "*rsync @ 1"))
+            (mock-proc-2 (list :name "proc2" :buffer "*rsync @ 2"))
+            ((symbol-function 'get-buffer-process) (lambda (buf)
+                                                    (cond
+                                                     ((string-equal buf "*rsync @ 1") mock-proc-1)
+                                                     ((string-equal buf "*rsync @ 2") mock-proc-2)
+                                                     (t nil))))
+            ((symbol-function 'process-live-p) (lambda (proc)
+                                                  (cond
+                                                   ((equal proc mock-proc-1) t)
+                                                   ((equal proc mock-proc-2) nil)
+                                                   (t nil)))))
+    (should (equal '("*rsync @ 1") (dired-rsync--get-active-buffers)))))
+
 (ert-deftest dired-rsync-test-update-modeline-no-jobs ()
   "Test modeline update with no active jobs and no stale buffers."
   (cl-letf (((symbol-function 'dired-rsync--get-active-buffers) (lambda () nil))
@@ -138,8 +169,16 @@
 
 (ert-deftest dired-rsync-test-update-modeline-stale-buffers ()
   "Test modeline update with stale buffers but no active jobs."
-  (cl-letf (((symbol-function 'dired-rsync--get-active-buffers) (lambda () nil))
-            ((symbol-function 'dired-rsync--get-proc-buffers) (lambda () '(t t)))
+  (cl-letf (((symbol-function 'buffer-list) (lambda () '("*rsync @ 1" "*rsync @ 2")))
+            ((symbol-function 'buffer-name) (lambda (buf) buf))
+            (mock-proc-1 (list :name "proc1" :buffer "*rsync @ 1"))
+            (mock-proc-2 (list :name "proc2" :buffer "*rsync @ 2"))
+            ((symbol-function 'get-buffer-process) (lambda (buf)
+                                                    (cond
+                                                     ((string-equal buf "*rsync @ 1") mock-proc-1)
+                                                     ((string-equal buf "*rsync @ 2") mock-proc-2)
+                                                     (t nil))))
+            ((symbol-function 'process-live-p) (lambda (proc) nil))
             (dired-rsync-modeline-status nil))
     (dired-rsync--update-modeline)
     (should (string-equal (propertize " R:hung :-(" 'font-lock-face '(:foreground "red"))
