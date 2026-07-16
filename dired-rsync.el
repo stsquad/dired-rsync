@@ -195,7 +195,7 @@ neither is set we simply display the current number of jobs."
   (force-mode-line-update)
   (let ((job-count (length (dired-rsync--get-active-buffers))))
     (setq dired-rsync-modeline-status
-          (string-replace
+          (s-replace
            "%" "%%"
            (cond
             ;; error has occurred
