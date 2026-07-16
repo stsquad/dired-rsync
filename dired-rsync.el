@@ -212,7 +212,7 @@ neither is set we simply display the current number of jobs."
              (propertize " R:hung :-("
                          'font-lock-face '(:foreground "red")))
             ;; nothing going on
-            (t nil))))))
+            (t ""))))))
 
 ;;
 ;; Running rsync: We need to take care of a couple of things here. We

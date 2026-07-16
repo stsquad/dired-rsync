@@ -95,4 +95,54 @@
              (dired-rsync--remote-to-remote-cmd "seed" nil '("a" "b" "c's") "user"
                                                 "host" nil "/video")))))
 
+(ert-deftest dired-rsync-test-update-modeline-no-jobs ()
+  "Test modeline update with no active jobs and no stale buffers."
+  (cl-letf (((symbol-function 'dired-rsync--get-active-buffers) (lambda () nil))
+            ((symbol-function 'dired-rsync--get-proc-buffers) (lambda () nil))
+            (dired-rsync-modeline-status nil)) ; Reset for each test
+    (dired-rsync--update-modeline)
+    (should (string-equal "" dired-rsync-modeline-status))))
+
+(ert-deftest dired-rsync-test-update-modeline-one-job ()
+  "Test modeline update with one active job and no indicator."
+  (cl-letf (((symbol-function 'dired-rsync--get-active-buffers) (lambda () '(t)))
+            ((symbol-function 'dired-rsync--get-proc-buffers) (lambda () nil))
+            (dired-rsync-modeline-status nil))
+    (dired-rsync--update-modeline)
+    (should (string-equal " R:1" dired-rsync-modeline-status))))
+
+(ert-deftest dired-rsync-test-update-modeline-one-job-with-indicator ()
+  "Test modeline update with one active job and a percentage indicator."
+  (cl-letf (((symbol-function 'dired-rsync--get-active-buffers) (lambda () '(t)))
+            ((symbol-function 'dired-rsync--get-proc-buffers) (lambda () nil))
+            (dired-rsync-modeline-status nil))
+    (dired-rsync--update-modeline nil "50%")
+    (should (string-equal " R:50%%" dired-rsync-modeline-status))))
+
+(ert-deftest dired-rsync-test-update-modeline-multiple-jobs ()
+  "Test modeline update with multiple active jobs."
+  (cl-letf (((symbol-function 'dired-rsync--get-active-buffers) (lambda () '(t t)))
+            ((symbol-function 'dired-rsync--get-proc-buffers) (lambda () nil))
+            (dired-rsync-modeline-status nil))
+    (dired-rsync--update-modeline)
+    (should (string-equal " R:2" dired-rsync-modeline-status))))
+
+(ert-deftest dired-rsync-test-update-modeline-error ()
+  "Test modeline update when an error is present."
+  (cl-letf (((symbol-function 'dired-rsync--get-active-buffers) (lambda () '(t)))
+            ((symbol-function 'dired-rsync--get-proc-buffers) (lambda () nil))
+            (dired-rsync-modeline-status nil))
+    (dired-rsync--update-modeline "ErrorMsg")
+    (should (string-equal (propertize " R:1 ErrorMsg!!" 'font-lock-face '(:foreground "red"))
+                          dired-rsync-modeline-status))))
+
+(ert-deftest dired-rsync-test-update-modeline-stale-buffers ()
+  "Test modeline update with stale buffers but no active jobs."
+  (cl-letf (((symbol-function 'dired-rsync--get-active-buffers) (lambda () nil))
+            ((symbol-function 'dired-rsync--get-proc-buffers) (lambda () '(t t)))
+            (dired-rsync-modeline-status nil))
+    (dired-rsync--update-modeline)
+    (should (string-equal (propertize " R:hung :-(" 'font-lock-face '(:foreground "red"))
+                          dired-rsync-modeline-status))))
+
 ;;; dired-rsync-ert.el ends here
