@@ -148,7 +148,7 @@
             ((symbol-function 'dired-rsync--get-proc-buffers) (lambda () nil))
             (dired-rsync-modeline-status nil))
     (dired-rsync--update-modeline nil "50%")
-    (should (string-equal " R:50%%" dired-rsync-modeline-status))))
+    (should (string-equal " R:50%" dired-rsync-modeline-status))))
 
 (ert-deftest dired-rsync-test-update-modeline-multiple-jobs ()
   "Test modeline update with multiple active jobs."
