@@ -88,3 +88,11 @@ wanting in usability. This attempts to clean up the ideas from:
  - https://vxlabs.com/2018/03/30/asynchronous-rsync-with-emacs-dired-and-tramp/
 
 in a hopefully cleaner and more idiomatic way.
+
+** dired-async-mode
+
+The [[https://github.com/jwiegley/emacs-async][emacs-async]] package adds ~dired-async-mode~ to Emacs which allows
+for asynchronous ~dired~ operations on Emacs 24.4 onwards. However for
+large files and directory trees I think ~dired-rsync~ still works
+better as the copying is left to rsync rather than a child Emacs
+process.
