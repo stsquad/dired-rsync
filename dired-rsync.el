@@ -319,7 +319,7 @@ Fortunately both forms are broadly the same."
 ;; ref: https://unix.stackexchange.com/questions/183504/how-to-rsync-files-between-two-remotes
 (defun dired-rsync--remote-to-remote-cmd (shost sport sfiles duser dhost dport dpath)
   "Construct and trigger an rsync run for remote copy.
-The source SHOST and SFILES to remote DUSER @ DHOST to DPATH.
+The source SHOST, SPORT and SFILES to remote DUSER @ DHOST, DPORT to DPATH.
 
 rsync doesn't support this mode of operation but we can fake it by
 providing a port forward from the source host which we pass onto the
